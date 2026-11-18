@@ -114,8 +114,8 @@ const stepSeconds = 1 / 120;
 const gazeFrequency = 13;
 const gazeDamping = 1;
 
-function stepSpring(spring, target, frequency) {
-  const acceleration = -2 * gazeDamping * frequency * spring.velocity
+function stepSpring(spring, target, frequency, damping = gazeDamping) {
+  const acceleration = -2 * damping * frequency * spring.velocity
     - frequency ** 2 * (spring.position - target);
   spring.velocity += acceleration * stepSeconds;
   spring.position += spring.velocity * stepSeconds;
@@ -294,7 +294,7 @@ function buildClip({ duration, gaze, blinks, blinkRate = 1, motion, motionFreque
   const motionSprings = Object.entries(restingMotion).map(([channel, position]) =>
     ({ channel, position, velocity: 0 }));
   const motionTargets = [restingMotion, ...motion];
-  const restingFrame = { x: x.position, y: y.position, openness: 1, ...restingMotion };
+  const restingFrame = { x: x.position, y: y.position, openness: 1, ...restingMotion, shapeVelocity: 0 };
   const frames = [restingFrame];
   let keyframe = 0;
   let lidKeyframe = 0;
@@ -311,8 +311,10 @@ function buildClip({ duration, gaze, blinks, blinkRate = 1, motion, motionFreque
     const frame = { x: x.position, y: y.position, openness: Math.min(1, lid.position) };
     for (const spring of motionSprings) {
       const { channel } = spring;
-      stepSpring(spring, motionTargets[motionKeyframe][channel] ?? restingMotion[channel], motionFrequency);
+      const damping = channel === 'shapeMix' ? 0.48 : gazeDamping;
+      stepSpring(spring, motionTargets[motionKeyframe][channel] ?? restingMotion[channel], motionFrequency, damping);
       frame[channel] = spring.position;
+      if (channel === 'shapeMix') frame.shapeVelocity = spring.velocity;
     }
     frames.push(frame);
   }
@@ -359,21 +361,40 @@ function buildEyeMasks({ top = -100, slope = 0 }) {
   });
 }
 
-function morphEyeShapes(amount) {
+function morphEyeShapes(amount, velocity = 0) {
   const mix = Math.max(0, Math.min(1, amount));
   return defaultEyes.map((eye, index) => {
     const roundness = index === 0 ? mix : 1 - mix;
     const width = 299.7 + (287.7 - 299.7) * roundness;
     const height = 161.5 + (287.7 - 161.5) * roundness;
+    const direction = index === 0 ? 1 : -1;
+    const squash = Math.tanh(velocity / 8) * 0.14 * direction;
+    const recoil = Math.max(-0.12, Math.min(0.12, amount - mix)) * direction;
     const shape = new Path2D();
-    shape.roundRect(eye.centerX - width / 2, 256.5 - height / 2,
-      width, height, height / 2 * roundness);
+    // Blend radial contours so the whole outline flexes during the exchange.
+    for (let point = 0; point <= 128; point++) {
+      const angle = point / 128 * Math.PI * 2;
+      const cosine = Math.cos(angle);
+      const sine = Math.sin(angle);
+      const exponent = 2 / Math.max(roundness, 0.005);
+      const radius = roundness === 0
+        ? 1 / Math.max(Math.abs(cosine), Math.abs(sine))
+        : Math.pow(Math.abs(cosine) ** exponent + Math.abs(sine) ** exponent, -1 / exponent);
+      const ripple = 1 + (squash * 0.16 + recoil) * Math.sin(3 * angle);
+      const x = eye.centerX + width / 2 * cosine * radius * (1 + squash) * ripple;
+      const y = 256.5 + height / 2 * sine * radius / (1 + squash) * ripple;
+      if (point === 0) shape.moveTo(x, y);
+      else shape.lineTo(x, y);
+    }
+    shape.closePath();
     return { ...eye, shape };
   });
 }
 
-function drawFace({ x, y, openness, eyeX, eyeY, stretch, pinch, lift, tilt, shapeMix }) {
-  const frameEyes = shapeMix > 0 ? morphEyeShapes(shapeMix) : eyes;
+function drawFace({ x, y, openness, eyeX, eyeY, stretch, pinch, lift, tilt, shapeMix, shapeVelocity }) {
+  const frameEyes = shapeMix !== 0 || shapeVelocity !== 0
+    ? morphEyeShapes(shapeMix, shapeVelocity)
+    : eyes;
   context.fillStyle = '#32ce60';
   context.fillRect(0, 0, canvas.width, canvas.height);
   context.save();
