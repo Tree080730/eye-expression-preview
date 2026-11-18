@@ -30,6 +30,9 @@
     cursor: pointer;
   }
   button:hover { background: #304638; }
+  button:disabled { opacity: 0.55; cursor: wait; }
+  .export { margin-top: 14px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .export span { font-size: 13px; color: #45564d; }
   .expressions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
   .expressions button { min-width: 0; padding: 0 14px; background: transparent; color: #19241e; border-color: #b9c4b8; }
   .expressions button:hover { background: #e2eadf; }
@@ -54,7 +57,12 @@
     <input type="range" id="timeline" min="0" step="1" value="0" aria-label="动画进度">
     <output for="timeline" id="time"></output>
   </div>
+  <div class="export">
+    <button type="button" id="export-gif">导出 GIF</button>
+    <span id="export-status" role="status">844 × 580 · 20 帧/秒 · 循环播放，导出预设动作</span>
+  </div>
 </main>
+<script src="vendor/gifenc.js"></script>
 <script>
 // Playback clock from grok-bot-study dfe1140, web/bot-element.jsx.
 class MotionClock {
@@ -417,6 +425,8 @@ let position = 0;
 let playbackStart = 0;
 let wasPlaying = false;
 let expressionFrame;
+let selectedExpression;
+let exporting = false;
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 let pointer = null;
 let followFrame = null;
@@ -472,7 +482,7 @@ function clearPointer() {
 }
 
 canvas.addEventListener('pointermove', event => {
-  if (event.pointerType === 'touch' || reducedMotion.matches) return;
+  if (exporting || event.pointerType === 'touch' || reducedMotion.matches) return;
   const rect = canvas.getBoundingClientRect();
   const normalized = ratio => Math.max(-0.6, Math.min(0.6, ratio - 0.5));
   pointer = {
@@ -533,6 +543,7 @@ const expressionButtons = Object.values(expressions).map(expression => {
 });
 
 function selectExpression(expression) {
+  selectedExpression = expression;
   clip = buildClip(expression);
   pose = expression.pose ?? {};
   eyes = pose.eyes?.map(buildReferenceEye) ?? defaultEyes;
@@ -559,6 +570,67 @@ play.addEventListener('click', () => {
 timeline.addEventListener('input', () => {
   show(Number(timeline.value));
   pause();
+});
+
+const exportButton = document.querySelector('#export-gif');
+const exportStatus = document.querySelector('#export-status');
+exportButton.addEventListener('click', async () => {
+  if (exporting) return;
+  const savedPosition = position;
+  const wasRunning = clock.running;
+  const controls = [...document.querySelectorAll('button, input')];
+  const palette = [[50, 206, 96], [255, 255, 255], [0, 0, 0]];
+  // Keep the same palette throughout the animation, including antialiased edges.
+  for (const [from, to] of [[palette[0], palette[1]], [palette[0], palette[2]], [palette[1], palette[2]]]) {
+    for (let step = 1; step < 16; step++) {
+      palette.push(from.map((value, index) => Math.round(value + (to[index] - value) * step / 16)));
+    }
+  }
+  pause();
+  exporting = true;
+  pointer = null;
+  cancelAnimationFrame(followFrame);
+  followFrame = null;
+  Object.assign(gazeOffset, { x: 0, y: 0, weight: 0 });
+  controls.forEach(control => { control.disabled = true; });
+  try {
+    const encoder = window.gifenc.GIFEncoder();
+    const delay = 50;
+    const frameCount = Math.ceil(clip.duration / delay);
+    for (let frame = 0; frame < frameCount; frame++) {
+      show(frame * delay);
+      const { data } = context.getImageData(0, 0, canvas.width, canvas.height);
+      const indexed = window.gifenc.applyPalette(data, palette);
+      encoder.writeFrame(indexed, canvas.width, canvas.height, {
+        palette: frame === 0 ? palette : undefined,
+        delay: Math.min(delay, clip.duration - frame * delay),
+        repeat: 0,
+      });
+      if (frame % 4 === 0) {
+        exportStatus.textContent = '正在导出 ' + Math.round((frame + 1) / frameCount * 100) + '%';
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
+    }
+    encoder.finish();
+    const blob = new Blob([encoder.bytes()], { type: 'image/gif' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = selectedExpression.label + '-844x580.gif';
+    document.body.append(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    exportStatus.textContent = '已导出「' + selectedExpression.label + '」 · ' + (blob.size / 1024 / 1024).toFixed(2) + ' MB';
+  } catch (error) {
+    console.error(error);
+    exportStatus.textContent = '导出失败，请重试。' + (error.message ?? '');
+  } finally {
+    exporting = false;
+    controls.forEach(control => { control.disabled = false; });
+    show(savedPosition);
+    if (wasRunning) resume();
+  }
 });
 
 document.addEventListener('visibilitychange', () => {
