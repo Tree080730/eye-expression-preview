@@ -168,27 +168,28 @@ const expressions = {
   },
   happy: {
     label: '开心', duration: 10400, pose: {
-      blinkCenterY: 274, eyeBounce: 0.25,
+      blinkCenterY: 274,
       eyes: [
         { circle: [282.6, 274, 139.7], cutout: [245.1, 455.2, 152.9], pupil: [305.8, 273.6, 78.5] },
         { circle: [561.8, 274, 139.7], cutout: [622.5, 433.1, 159.9], pupil: [540.9, 273.6, 78.5] },
       ],
     },
     gaze: [
-      { at: 0, x: 0, y: 0 }, { at: 420, x: 27, y: -29 },
-      { at: 1000, x: 10, y: -6 }, { at: 1580, x: -14, y: -27 },
-      { at: 2490, x: 15, y: -11 }, { at: 3890, x: -17, y: -16 },
-      { at: 5240, x: 14, y: -29 }, { at: 6550, x: 0, y: 0 },
+      { at: 0, x: 0, y: 0 }, { at: 750, x: -5, y: 2 },
+      { at: 2900, x: 5, y: 0 }, { at: 5200, x: -4, y: 3 },
+      { at: 8000, x: 0, y: 0 },
     ],
-    blinks: [1250, 1720, 4560, 5820],
+    blinks: [2700, 7350],
+    motionFrequency: 9,
     motion: [
-      { at: 200, lift: 48, stretch: 1.18 },
-      { at: 580, lift: -12, stretch: 0.79 },
-      { at: 770, lift: 35, stretch: 1.13 },
-      { at: 1150 },
-      { at: 3630, lift: 43, stretch: 1.16 },
-      { at: 4030, lift: -10, stretch: 0.81 },
-      { at: 4260 },
+      { at: 550, cheekLift: 48 },
+      { at: 1850, cheekLift: 24 },
+      { at: 3370, cheekLift: 58 },
+      { at: 4750, cheekLift: 30 },
+      { at: 5690, cheekLift: 52 },
+      { at: 7100, cheekLift: 22 },
+      { at: 8010, cheekLift: 55 },
+      { at: 9250 },
     ],
   },
   surprised: {
@@ -298,7 +299,7 @@ const shapeRhythm = [
   { at: 8010, value: 0 },
 ];
 
-const restingMotion = { stretch: 1, pinch: 0, lift: 0, tilt: 0 };
+const restingMotion = { stretch: 1, pinch: 0, lift: 0, tilt: 0, cheekLift: 0 };
 
 function swapBlinkOpenness(timeFromSwap) {
   const smooth = value => value * value * (3 - 2 * value);
@@ -384,7 +385,7 @@ function buildReferenceEye({ rect, circle, cutout, pupil }) {
   const rectangleHeight = rect ? rect[3] : circleDiameter * 161.5 / 287.7;
   const centerX = circle ? circle[0] : rect[0] + rect[2] / 2;
   const centerY = circle ? circle[1] : rect[1] + rect[3] / 2;
-  return { shape, mask, pupilX, pupilY, pupilRadius, startsRound,
+  return { shape, mask, cutout, pupilX, pupilY, pupilRadius, startsRound,
     circleDiameter, rectangleWidth, rectangleHeight, centerX, centerY };
 }
 
@@ -431,10 +432,19 @@ function morphEyeShapes(amount, velocity = 0) {
   });
 }
 
-function drawFace({ x, y, openness, eyeX, eyeY, stretch, pinch, lift, tilt, shapeMix, shapeVelocity }) {
+function drawFace({ x, y, openness, eyeX, eyeY, stretch, pinch, lift, tilt, shapeMix, shapeVelocity, cheekLift }) {
   const frameEyes = shapeMix !== 0 || shapeVelocity !== 0
     ? morphEyeShapes(shapeMix, shapeVelocity)
     : eyes;
+  const frameMasks = frameEyes.map((eye, index) => {
+    if (!eye.cutout || cheekLift === 0) return eye.mask ?? eyeMasks?.[index];
+    const [x, y, radius] = eye.cutout;
+    const mask = new Path2D();
+    mask.rect(-800, -800, 2400, 2400);
+    mask.moveTo(x + radius, y - cheekLift);
+    mask.arc(x, y - cheekLift, radius, 0, 2 * Math.PI);
+    return mask;
+  });
   context.fillStyle = '#32ce60';
   context.fillRect(0, 0, canvas.width, canvas.height);
   context.save();
@@ -448,7 +458,7 @@ function drawFace({ x, y, openness, eyeX, eyeY, stretch, pinch, lift, tilt, shap
   frameEyes.forEach((eye, index) => {
     context.save();
     context.translate(index === 0 ? pinch : -pinch, 0);
-    const mask = eye.mask ?? eyeMasks?.[index];
+    const mask = frameMasks[index];
     if (mask) context.clip(mask, 'evenodd');
     context.fill(eye.shape);
     context.restore();
@@ -457,7 +467,7 @@ function drawFace({ x, y, openness, eyeX, eyeY, stretch, pinch, lift, tilt, shap
     context.save();
     context.translate(index === 0 ? pinch : -pinch, 0);
     context.clip(eye.shape);
-    const mask = eye.mask ?? eyeMasks?.[index];
+    const mask = frameMasks[index];
     if (mask) context.clip(mask, 'evenodd');
     context.fillStyle = '#000';
     context.beginPath();
