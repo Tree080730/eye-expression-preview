@@ -167,7 +167,7 @@ const expressions = {
     ],
   },
   happy: {
-    label: '开心', duration: 7600, pose: {
+    label: '开心', duration: 10400, pose: {
       blinkCenterY: 274, eyeBounce: 0.25,
       eyes: [
         { circle: [282.6, 274, 139.7], cutout: [245.1, 455.2, 152.9], pupil: [305.8, 273.6, 78.5] },
@@ -192,7 +192,7 @@ const expressions = {
     ],
   },
   surprised: {
-    label: '惊讶', duration: 7600, pose: {
+    label: '惊讶', duration: 10400, pose: {
       eyeBounce: 0.19,
       eyes: [
         { rect: [115.1, 176.7, 291, 155.7], pupil: [310.8, 265.3, 50] },
@@ -214,7 +214,7 @@ const expressions = {
     ],
   },
   angry: {
-    label: '生气', duration: 7600, pose: { top: 243, slope: 0.32, pupilRadius: 64 },
+    label: '生气', duration: 10400, pose: { top: 243, slope: 0.32, pupilRadius: 64 },
     gaze: [
       { at: 0, x: -58, y: -26 }, { at: 310, x: -37, y: -17 },
       { at: 880, x: -57, y: -26 }, { at: 2410, x: -45, y: -24 },
@@ -230,7 +230,7 @@ const expressions = {
     ],
   },
   sad: {
-    label: '伤心', duration: 7600, pose: { top: 232, slope: -0.22, pupilRadius: 65, eyeBounce: 0.22 },
+    label: '伤心', duration: 10400, pose: { top: 232, slope: -0.22, pupilRadius: 65, eyeBounce: 0.22 },
     gaze: [
       { at: 0, x: -63, y: 12 }, { at: 720, x: -38, y: 19 },
       { at: 1900, x: -72, y: 32 }, { at: 3900, x: -72, y: 7 },
@@ -246,7 +246,7 @@ const expressions = {
     ],
   },
   bored: {
-    label: '无聊', duration: 7600, pose: { top: 249, pupilRadius: 70 },
+    label: '无聊', duration: 10400, pose: { top: 249, pupilRadius: 70 },
     gaze: [
       { at: 0, x: -36, y: -54 }, { at: 1310, x: -115, y: -54 },
       { at: 3350, x: -104, y: -68 }, { at: 4260, x: -19, y: -55 },
@@ -262,7 +262,7 @@ const expressions = {
     ],
   },
   drowsy: {
-    label: '困了', duration: 7600, pose: { top: 260, height: 0.63, pupilRadius: 61, pupilInward: 12, eyeBounce: 0.52 },
+    label: '困了', duration: 10400, pose: { top: 260, height: 0.63, pupilRadius: 61, pupilInward: 12, eyeBounce: 0.52 },
     gaze: [
       { at: 0, x: -53, y: -33 }, { at: 620, x: -53, y: -7 },
       { at: 2130, x: -48, y: -40 }, { at: 3280, x: -56, y: 12 },
@@ -290,9 +290,17 @@ const blinkLidTargets = [
 ];
 const lidFrequency = 26;
 
+const shapeRhythm = [
+  { at: 0, value: 0 },
+  { at: 1050, value: 1 },
+  { at: 3370, value: 0 },
+  { at: 5690, value: 1 },
+  { at: 8010, value: 0 },
+];
+
 const restingMotion = { stretch: 1, pinch: 0, lift: 0, tilt: 0, shapeMix: 0 };
 
-function buildClip({ duration, gaze, blinks, blinkRate = 1, motion, motionFrequency = 10, shape = [{ at: 0, value: 0 }] }) {
+function buildClip({ duration, gaze, blinks, blinkRate = 1, motion, motionFrequency = 10, shape = shapeRhythm }) {
   const lids = [{ at: 0, openness: 1 }, ...blinks.flatMap(start =>
     blinkLidTargets.map(({ at, openness }) => ({ at: start + at * blinkRate, openness })))];
   const x = { position: gaze[0].x, velocity: 0 };
@@ -324,7 +332,7 @@ function buildClip({ duration, gaze, blinks, blinkRate = 1, motion, motionFreque
       const target = channel === 'shapeMix'
         ? shape[shapeKeyframe].value
         : motionTargets[motionKeyframe][channel] ?? restingMotion[channel];
-      stepSpring(spring, target, motionFrequency, damping);
+      stepSpring(spring, target, channel === 'shapeMix' ? 14 : motionFrequency, damping);
       frame[channel] = spring.position;
       if (channel === 'shapeMix') frame.shapeVelocity = spring.velocity;
     }
@@ -337,8 +345,8 @@ function buildClip({ duration, gaze, blinks, blinkRate = 1, motion, motionFreque
 const canvas = document.querySelector('#face');
 const context = canvas.getContext('2d');
 const defaultEyes = [
-  { shape: new Path2D(), centerX: 257.55, pupilX: 308.7, pupilY: 288.9 },
-  { shape: new Path2D(), centerX: 537.1, pupilX: 600.3, pupilY: 306.2 },
+  { shape: new Path2D(), centerX: 257.55, centerY: 256.65, rectangleWidth: 299.7, rectangleHeight: 161.5, circleDiameter: 287.7, startsRound: false, pupilX: 308.7, pupilY: 288.9 },
+  { shape: new Path2D(), centerX: 537.1, centerY: 256.45, rectangleWidth: 299.7, rectangleHeight: 161.5, circleDiameter: 287.7, startsRound: true, pupilX: 600.3, pupilY: 306.2 },
 ];
 defaultEyes[0].shape.rect(107.7, 175.9, 299.7, 161.5);
 defaultEyes[1].shape.arc(537.1, 256.45, 143.85, 0, 2 * Math.PI);
@@ -355,7 +363,14 @@ function buildReferenceEye({ rect, circle, cutout, pupil }) {
     mask.arc(...cutout, 0, 2 * Math.PI);
   }
   const [pupilX, pupilY, pupilRadius] = pupil;
-  return { shape, mask, pupilX, pupilY, pupilRadius };
+  const startsRound = Boolean(circle);
+  const circleDiameter = circle ? circle[2] * 2 : rect[2];
+  const rectangleWidth = rect ? rect[2] : circleDiameter * 299.7 / 287.7;
+  const rectangleHeight = rect ? rect[3] : circleDiameter * 161.5 / 287.7;
+  const centerX = circle ? circle[0] : rect[0] + rect[2] / 2;
+  const centerY = circle ? circle[1] : rect[1] + rect[3] / 2;
+  return { shape, mask, pupilX, pupilY, pupilRadius, startsRound,
+    circleDiameter, rectangleWidth, rectangleHeight, centerX, centerY };
 }
 
 function buildEyeMasks({ top = -100, slope = 0 }) {
@@ -375,11 +390,11 @@ function buildEyeMasks({ top = -100, slope = 0 }) {
 
 function morphEyeShapes(amount, velocity = 0) {
   const mix = Math.max(0, Math.min(1, amount));
-  return defaultEyes.map((eye, index) => {
-    const roundness = index === 0 ? mix : 1 - mix;
-    const width = 299.7 + (287.7 - 299.7) * roundness;
-    const height = 161.5 + (287.7 - 161.5) * roundness;
-    const direction = index === 0 ? 1 : -1;
+  return eyes.map(eye => {
+    const roundness = eye.startsRound ? 1 - mix : mix;
+    const width = eye.rectangleWidth + (eye.circleDiameter - eye.rectangleWidth) * roundness;
+    const height = eye.rectangleHeight + (eye.circleDiameter - eye.rectangleHeight) * roundness;
+    const direction = eye.startsRound ? -1 : 1;
     const squash = Math.tanh(velocity / 8) * 0.14 * direction;
     const shape = new Path2D();
     // Morph each eye around its own fixed center, with symmetric squash and stretch.
@@ -392,7 +407,7 @@ function morphEyeShapes(amount, velocity = 0) {
         ? 1 / Math.max(Math.abs(cosine), Math.abs(sine))
         : Math.pow(Math.abs(cosine) ** exponent + Math.abs(sine) ** exponent, -1 / exponent);
       const x = eye.centerX + width / 2 * cosine * radius * (1 + squash);
-      const y = 256.5 + height / 2 * sine * radius / (1 + squash);
+      const y = eye.centerY + height / 2 * sine * radius / (1 + squash);
       if (point === 0) shape.moveTo(x, y);
       else shape.lineTo(x, y);
     }
