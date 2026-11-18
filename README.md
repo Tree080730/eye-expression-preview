@@ -20,7 +20,7 @@ python3 -m http.server 8000
 
 首次推送后，在 GitHub 仓库的 Settings → Pages 中将 Source 设为 GitHub Actions，再运行 Publish expression preview 工作流。部署成功后，从 Pages 设置或 Actions 的 github-pages 环境获取实际预览地址。团队成员打开该地址即可操作表情，后续推送到 main 会自动更新网页。
 
-当前本地已经准备发布配置，远程仓库创建和首次部署仍待完成。
+项目已上传至 https://github.com/Tree080730/eye-expression-preview 。首次自动部署因仓库尚未开启 Pages 而停止，需要先完成上述 Pages 设置，再重新运行工作流。
 
 ## 使用
 
