@@ -170,8 +170,8 @@ const expressions = {
     label: '开心', duration: 10400, pose: {
       blinkCenterY: 274,
       eyes: [
-        { circle: [282.6, 274, 139.7], cutout: [164, 439, 115], smileCutout: [192, 421, 132], pupil: [305.8, 273.6, 78.5] },
-        { circle: [561.8, 274, 139.7], cutout: [684, 439, 115], smileCutout: [652.4, 421, 132], pupil: [540.9, 273.6, 78.5] },
+        { circle: [282.6, 274, 139.7], cutout: [164, 530, 115], smileCutout: [192, 421, 132], pupil: [305.8, 273.6, 78.5] },
+        { circle: [561.8, 274, 139.7], cutout: [684, 530, 115], smileCutout: [652.4, 421, 132], pupil: [540.9, 273.6, 78.5] },
       ],
     },
     gaze: [
@@ -182,7 +182,7 @@ const expressions = {
     blinks: [3700, 8400],
     motionFrequency: 5.5,
     motion: [
-      { at: 350, cheekLift: 28 },
+      { at: 650, cheekLift: 28 },
       { at: 1050, cheekLift: 58 },
       { at: 1850, cheekLift: 43 },
       { at: 2350, cheekLift: 55 },
@@ -196,91 +196,160 @@ const expressions = {
   },
   surprised: {
     label: '惊讶', duration: 10400, pose: {
-      eyeBounce: 0.19,
       eyes: [
         { rect: [115.1, 176.7, 291, 155.7], pupil: [310.8, 265.3, 50] },
         { circle: [532.2, 254.5, 139.7], pupil: [570.3, 266.1, 61.5] },
       ],
     },
     gaze: [
-      { at: 0, x: 0, y: 0 }, { at: 280, x: 2, y: -38 },
-      { at: 820, x: 0, y: 0 }, { at: 2700, x: 21, y: -14 },
-      { at: 3280, x: -17, y: -4 }, { at: 4010, x: 0, y: 0 },
+      { at: 0, x: 0, y: 0 },
+      { at: 240, x: 0, y: -16 },
+      { at: 1900, x: 0, y: -5 },
+      { at: 3850, x: 2, y: -14 },
+      { at: 5400, x: 0, y: -4 },
+      { at: 8450, x: 0, y: -15 },
+      { at: 9600, x: 0, y: 0 },
     ],
-    blinks: [2420, 5080],
-    motionFrequency: 23,
+    blinks: [],
+    shape: [
+      { at: 0, value: 0 },
+      { at: 5200, value: 1 },
+      { at: 9300, value: 0 },
+    ],
+    motionFrequency: 11,
     motion: [
-      { at: 130, stretch: 1.37, lift: 8, pinch: -14 },
-      { at: 460, stretch: 1.29, lift: 4, pinch: -8 },
-      { at: 1420, stretch: 1.12 },
-      { at: 1870 },
+      { at: 200, circleScale: 1.26, pupilScale: 0.76, squareScale: 0.92, squareSquint: 0.76, eyeTilt: 0.12, tilt: 0.055 },
+      { at: 1800, circleScale: 1.12, pupilScale: 0.90, squareScale: 0.97, squareSquint: 0.89, eyeTilt: 0.06, tilt: 0.02 },
+      { at: 3550, circleScale: 1.25, pupilScale: 0.78, squareScale: 0.93, squareSquint: 0.75, eyeTilt: 0.13, tilt: -0.05 },
+      { at: 5250, circleScale: 1.10, pupilScale: 0.92, squareScale: 0.98, squareSquint: 0.90, eyeTilt: 0.05 },
+      { at: 5950, circleScale: 1.24, pupilScale: 0.79, squareScale: 0.92, squareSquint: 0.77, eyeTilt: 0.12, tilt: 0.05 },
+      { at: 7800, circleScale: 1.09, pupilScale: 0.94, squareScale: 0.98, squareSquint: 0.92, eyeTilt: 0.04 },
+      { at: 8290, circleScale: 1.25, pupilScale: 0.78, squareScale: 0.93, squareSquint: 0.76, eyeTilt: 0.12, tilt: -0.045 },
+      { at: 9650 },
     ],
   },
   angry: {
     label: '生气', duration: 10400, pose: { top: 243, slope: 0.32, pupilRadius: 64 },
+    shape: [{ at: 0, value: 0 }],
     gaze: [
-      { at: 0, x: -58, y: -26 }, { at: 310, x: -37, y: -17 },
-      { at: 880, x: -57, y: -26 }, { at: 2410, x: -45, y: -24 },
-      { at: 3160, x: -68, y: -22 }, { at: 4800, x: -58, y: -26 },
+      { at: 0, x: -58, y: -26 },
+      { at: 300, x: -54, y: -19 },
+      { at: 2650, x: -58, y: -23 },
+      { at: 5100, x: -54, y: -18 },
+      { at: 7550, x: -58, y: -23 },
+      { at: 9600, x: -58, y: -26 },
     ],
-    blinks: [1880, 5510],
+    blinks: [4200, 8800],
+    motionFrequency: 12,
     motion: [
-      { at: 220, pinch: 31, stretch: 0.74 },
-      { at: 990, pinch: 22, stretch: 0.83 },
-      { at: 2820, pinch: 34, stretch: 0.71 },
-      { at: 3530, pinch: 19, stretch: 0.86 },
-      { at: 5960 },
+      { at: 300, pinch: 42, stretch: 0.80, browPress: 12, lift: 7 },
+      { at: 1150, pinch: 48, stretch: 0.70, browPress: 22, tremble: 3.5, lift: -4 },
+      { at: 1950, pinch: 35, stretch: 0.83, browPress: 10, lift: 5 },
+      { at: 2850, pinch: 45, stretch: 0.74, browPress: 18, tremble: 2.5 },
+      { at: 3500, pinch: 20, stretch: 0.94, browPress: 4, lift: -10 },
+      { at: 5000, pinch: 44, stretch: 0.78, browPress: 16, lift: 8 },
+      { at: 6050, pinch: 49, stretch: 0.68, browPress: 23, tremble: 4, lift: -4 },
+      { at: 6900, pinch: 36, stretch: 0.84, browPress: 10, lift: 5 },
+      { at: 7750, pinch: 44, stretch: 0.75, browPress: 18, tremble: 2.5 },
+      { at: 8500, pinch: 20, stretch: 0.94, browPress: 4, lift: -10 },
+      { at: 9550 },
     ],
   },
   sad: {
-    label: '伤心', duration: 10400, pose: { top: 232, slope: -0.22, pupilRadius: 65, eyeBounce: 0.22 },
+    label: '伤心', duration: 10400, pose: { top: 232, slope: -0.22, pupilRadius: 65 },
+    shape: [{ at: 0, value: 0 }],
     gaze: [
-      { at: 0, x: -63, y: 12 }, { at: 720, x: -38, y: 19 },
-      { at: 1900, x: -72, y: 32 }, { at: 3900, x: -72, y: 7 },
-      { at: 5150, x: -47, y: 25 }, { at: 6380, x: -63, y: 12 },
+      { at: 0, x: -63, y: 12 },
+      { at: 550, x: -63, y: 33 },
+      { at: 1900, x: -68, y: 43 },
+      { at: 3450, x: -56, y: -25 },
+      { at: 4250, x: -59, y: -15 },
+      { at: 5050, x: -65, y: 40 },
+      { at: 6750, x: -70, y: 45 },
+      { at: 8100, x: -63, y: 28 },
+      { at: 9450, x: -63, y: 12 },
     ],
-    blinks: [1100, 3170, 5570], blinkRate: 1.65,
+    blinks: [2150, 7100], blinkRate: 2.6,
     motionFrequency: 4,
     motion: [
-      { at: 420, lift: -42, stretch: 0.79 },
-      { at: 2650, lift: -31, stretch: 0.86 },
-      { at: 4000, lift: -46, stretch: 0.75 },
-      { at: 5800 },
+      { at: 400, lift: -28, stretch: 0.86, tilt: 0.035, browPress: 4 },
+      { at: 1450, lift: -54, stretch: 0.72, tilt: 0.055, browPress: 9, sob: 13 },
+      { at: 2800, lift: -44, stretch: 0.78, tilt: 0.04, browPress: 6 },
+      { at: 3450, lift: 5, stretch: 1.05, tilt: -0.025 },
+      { at: 4300, lift: -12, stretch: 0.94, tilt: -0.01 },
+      { at: 5050, lift: -58, stretch: 0.69, tilt: 0.055, browPress: 10, sob: 17 },
+      { at: 6400, lift: -48, stretch: 0.76, tilt: 0.045, browPress: 7, sob: 10 },
+      { at: 7800, lift: -31, stretch: 0.84, tilt: 0.025, browPress: 4 },
+      { at: 9200 },
     ],
   },
   bored: {
     label: '无聊', duration: 10400, pose: { top: 249, pupilRadius: 70 },
-    gaze: [
-      { at: 0, x: -36, y: -54 }, { at: 1310, x: -115, y: -54 },
-      { at: 3350, x: -104, y: -68 }, { at: 4260, x: -19, y: -55 },
-      { at: 6380, x: -36, y: -54 },
+    shape: [
+      { at: 0, value: 0 },
+      { at: 4200, value: 1 },
+      { at: 9000, value: 0 },
     ],
-    blinks: [970, 3770, 5730], blinkRate: 1.4,
-    motionFrequency: 5,
+    gazeSpeed: 4,
+    gaze: [
+      { at: 0, x: -36, y: -54 },
+      { at: 650, x: -126, y: -54 },
+      { at: 2350, x: -110, y: -60 },
+      { at: 2950, x: -38, y: -62 },
+      { at: 3650, x: 12, y: -60 },
+      { at: 4900, x: 8, y: -52 },
+      { at: 5900, x: -105, y: -52 },
+      { at: 7700, x: -111, y: -59 },
+      { at: 8350, x: -42, y: -61 },
+      { at: 9450, x: -36, y: -54 },
+    ],
+    blinks: [6500], blinkRate: 2.5,
+    motionFrequency: 3.5,
     motion: [
-      { at: 830, stretch: 0.83 },
-      { at: 3020, stretch: 0.75 },
-      { at: 4260, stretch: 0.87 },
-      { at: 5870 },
+      { at: 500, stretch: 0.84, lift: -10, tilt: -0.035, browPress: 6 },
+      { at: 1700, stretch: 0.72, lift: -22, tilt: -0.045, browPress: 13 },
+      { at: 2950, stretch: 0.79, lift: -15, tilt: -0.02, browPress: 9 },
+      { at: 4600, stretch: 0.82, lift: -10, tilt: 0.03, browPress: 7 },
+      { at: 5900, stretch: 0.70, lift: -24, tilt: 0.045, browPress: 14 },
+      { at: 7700, stretch: 0.77, lift: -17, tilt: 0.02, browPress: 10 },
+      { at: 9250 },
     ],
   },
   drowsy: {
-    label: '困了', duration: 10400, pose: { top: 260, height: 0.63, pupilRadius: 61, pupilInward: 12, eyeBounce: 0.52 },
+    label: '困了', duration: 10400,
+    pose: { top: 260, height: 0.63, pupilRadius: 61, pupilInward: 12 },
+    shape: [{ at: 0, value: 0 }],
+    gazeSpeed: 5,
     gaze: [
-      { at: 0, x: -53, y: -33 }, { at: 620, x: -53, y: -7 },
-      { at: 2130, x: -48, y: -40 }, { at: 3280, x: -56, y: 12 },
-      { at: 4980, x: -53, y: -38 }, { at: 6150, x: -53, y: -33 },
+      { at: 0, x: -53, y: -33 },
+      { at: 500, x: -53, y: -10 },
+      { at: 1650, x: -53, y: 18 },
+      { at: 2880, x: -53, y: -40, speed: 24 },
+      { at: 3650, x: -53, y: -20 },
+      { at: 4600, x: -53, y: 0 },
+      { at: 5900, x: -53, y: 20 },
+      { at: 7050, x: -53, y: -40, speed: 24 },
+      { at: 7900, x: -53, y: -20 },
+      { at: 9400, x: -53, y: -33 },
     ],
     blinks: [],
-    motionFrequency: 6,
+    motionFrequency: 4,
     motion: [
-      { at: 350, stretch: 0.64, lift: -12 },
-      { at: 1130, stretch: 0.16, lift: -22 },
-      { at: 1990, stretch: 0.57, lift: -9 },
-      { at: 2990, stretch: 0.29, lift: -17 },
-      { at: 3680, stretch: 0.025, lift: -26 },
-      { at: 5660, stretch: 0.68, lift: -10 },
-      { at: 6450 },
+      { at: 350, stretch: 0.80, lift: -10, tilt: 0.02 },
+      { at: 1100, stretch: 0.46, lift: -30, tilt: 0.04 },
+      { at: 2000, stretch: 0.16, lift: -48, tilt: 0.06 },
+      { at: 2650, stretch: 0.018, lift: -112, tilt: 0.14, speed: 24 },
+      { at: 2880, stretch: 1.65, lift: 30, tilt: -0.04, browPress: -95, speed: 30 },
+      { at: 3180, stretch: 1.35, lift: 8, tilt: -0.015, browPress: -70, speed: 15 },
+      { at: 3650, stretch: 0.85, lift: -5, tilt: 0.01 },
+      { at: 4600, stretch: 0.50, lift: -26, tilt: 0.04 },
+      { at: 5800, stretch: 0.12, lift: -50, tilt: 0.07 },
+      { at: 6800, stretch: 0.018, lift: -120, tilt: 0.15, speed: 24 },
+      { at: 7050, stretch: 1.70, lift: 32, tilt: -0.045, browPress: -100, speed: 30 },
+      { at: 7380, stretch: 1.35, lift: 10, tilt: -0.015, browPress: -70, speed: 15 },
+      { at: 7900, stretch: 0.78, lift: -8, tilt: 0.02 },
+      { at: 8800, stretch: 0.55, lift: -20, tilt: 0.03 },
+      { at: 9400 },
     ],
   },
 };
@@ -301,7 +370,7 @@ const shapeRhythm = [
   { at: 8010, value: 0 },
 ];
 
-const restingMotion = { stretch: 1, pinch: 0, lift: 0, tilt: 0, cheekLift: 0 };
+const restingMotion = { stretch: 1, pinch: 0, lift: 0, tilt: 0, cheekLift: 0, circleScale: 1, pupilScale: 1, squareScale: 1, squareSquint: 1, eyeTilt: 0, browPress: 0, tremble: 0, sob: 0 };
 
 function swapBlinkOpenness(timeFromSwap) {
   const smooth = value => value * value * (3 - 2 * value);
@@ -311,7 +380,7 @@ function swapBlinkOpenness(timeFromSwap) {
   return smooth((timeFromSwap - 35) / 195);
 }
 
-function buildClip({ duration, gaze, blinks, blinkRate = 1, motion, motionFrequency = 10,
+function buildClip({ duration, gaze, blinks, blinkRate = 1, motion, motionFrequency = 10, gazeSpeed = gazeFrequency,
   shape: requestedShape = shapeRhythm, pose = {} }) {
   const bothRound = pose.eyes?.every(eye => eye.circle);
   const shape = bothRound ? [{ at: 0, value: 0 }] : requestedShape;
@@ -326,7 +395,7 @@ function buildClip({ duration, gaze, blinks, blinkRate = 1, motion, motionFreque
   const motionSprings = Object.entries(restingMotion).map(([channel, position]) =>
     ({ channel, position, velocity: 0 }));
   const motionTargets = [restingMotion, ...motion];
-  const restingFrame = { x: x.position, y: y.position, openness: 1, ...restingMotion, shapeMix: 0, shapeVelocity: 0 };
+  const restingFrame = { x: x.position, y: y.position, openness: 1, ...restingMotion, shapeMix: 0, shapeVelocity: 0, shakeX: 0, shakeY: 0 };
   const frames = [restingFrame];
   let keyframe = 0;
   let lidKeyframe = 0;
@@ -339,8 +408,8 @@ function buildClip({ duration, gaze, blinks, blinkRate = 1, motion, motionFreque
     while (lids[lidKeyframe + 1]?.at <= time) lidKeyframe++;
     while (motionTargets[motionKeyframe + 1]?.at <= time) motionKeyframe++;
     while (shape[shapeKeyframe + 1]?.at <= time) shapeKeyframe++;
-    stepSpring(x, gaze[keyframe].x, gazeFrequency);
-    stepSpring(y, gaze[keyframe].y, gazeFrequency);
+    stepSpring(x, gaze[keyframe].x, gaze[keyframe].speed ?? gazeSpeed);
+    stepSpring(y, gaze[keyframe].y, gaze[keyframe].speed ?? gazeSpeed);
     stepSpring(lid, lids[lidKeyframe].openness, lidFrequency);
     const blinkOpenness = Math.min(1, ...swaps.map(swap => swapBlinkOpenness(time - swap.at)));
     const frame = {
@@ -351,9 +420,20 @@ function buildClip({ duration, gaze, blinks, blinkRate = 1, motion, motionFreque
     for (const spring of motionSprings) {
       const { channel } = spring;
       const target = motionTargets[motionKeyframe][channel] ?? restingMotion[channel];
-      stepSpring(spring, target, motionFrequency);
+      stepSpring(spring, target, motionTargets[motionKeyframe].speed ?? motionFrequency,
+        channel === 'circleScale' ? 0.68 : gazeDamping);
       frame[channel] = spring.position;
     }
+    // Three short catches of breath followed by a longer pause.
+    const sobPhase = time % 1500;
+    const sobPulse = [80, 400, 740].reduce((pulse, start) => {
+      const progress = (sobPhase - start) / 220;
+      return pulse + (progress > 0 && progress < 1 ? Math.sin(Math.PI * progress) ** 2 : 0);
+    }, 0);
+    frame.shakeX = frame.tremble * (Math.sin(time * 0.055) + 0.35 * Math.sin(time * 0.093))
+      + frame.sob * sobPulse * 0.12 * Math.sin(time * 0.026);
+    frame.shakeY = frame.tremble * 0.3 * Math.sin(time * 0.071) - frame.sob * sobPulse;
+    frame.stretch *= 1 - Math.min(1, frame.sob / 12) * sobPulse * 0.14;
     frames.push(frame);
   }
   frames.push(restingFrame);
@@ -434,12 +514,23 @@ function morphEyeShapes(amount, velocity = 0) {
   });
 }
 
-function drawFace({ x, y, openness, eyeX, eyeY, stretch, pinch, lift, tilt, shapeMix, shapeVelocity, cheekLift }) {
+function drawFace({ x, y, openness, eyeX, eyeY, stretch, pinch, lift, tilt, shapeMix, shapeVelocity, cheekLift, circleScale, pupilScale, squareScale, squareSquint, eyeTilt, browPress, shakeX, shakeY }) {
   const frameEyes = shapeMix !== 0 || shapeVelocity !== 0
     ? morphEyeShapes(shapeMix, shapeVelocity)
     : eyes;
+  const roundEyes = frameEyes.map(eye => eye.startsRound ? shapeMix === 0 : shapeMix === 1);
+  const eyeScales = roundEyes.map(isRound => isRound ? circleScale : squareScale);
+  const applyEyeTransform = (eye, index) => {
+    const angle = eyeTilt * (index === 0 ? 1 : -1) * (roundEyes[index] ? -0.2 : 1);
+    context.translate((index === 0 ? pinch : -pinch) + eye.centerX, eye.centerY);
+    context.rotate(angle);
+    context.scale(eyeScales[index], eyeScales[index] * (roundEyes[index] ? 1 : squareSquint));
+    context.translate(-eye.centerX, -eye.centerY);
+  };
+  const expressionMasks = browPress === 0 ? eyeMasks
+    : buildEyeMasks({ ...pose, top: pose.top + browPress });
   const frameMasks = frameEyes.map((eye, index) => {
-    if (!eye.cutout || cheekLift === 0) return eye.mask ?? eyeMasks?.[index];
+    if (!eye.cutout || cheekLift === 0) return eye.mask ?? expressionMasks?.[index];
     const amount = Math.max(0, Math.min(1, cheekLift / 58));
     const [x, y, radius] = eye.cutout.map((value, axis) =>
       value + ((eye.smileCutout ?? eye.cutout)[axis] - value) * amount);
@@ -454,14 +545,14 @@ function drawFace({ x, y, openness, eyeX, eyeY, stretch, pinch, lift, tilt, shap
   context.save();
   const eyeCenterX = canvas.width / 2;
   const eyeCenterY = pose.blinkCenterY ?? 256.5;
-  context.translate(eyeCenterX + eyeX, eyeCenterY + eyeY - lift);
+  context.translate(eyeCenterX + eyeX + shakeX, eyeCenterY + eyeY - lift + shakeY);
   context.rotate(tilt);
   context.scale(1, openness * stretch * (pose.height ?? 1));
   context.translate(-eyeCenterX, -eyeCenterY);
   context.fillStyle = '#fff';
   frameEyes.forEach((eye, index) => {
     context.save();
-    context.translate(index === 0 ? pinch : -pinch, 0);
+    applyEyeTransform(eye, index);
     const mask = frameMasks[index];
     if (mask) context.clip(mask, 'evenodd');
     context.fill(eye.shape);
@@ -469,19 +560,21 @@ function drawFace({ x, y, openness, eyeX, eyeY, stretch, pinch, lift, tilt, shap
   });
   frameEyes.forEach((eye, index) => {
     context.save();
-    context.translate(index === 0 ? pinch : -pinch, 0);
+    applyEyeTransform(eye, index);
     context.clip(eye.shape);
     const mask = frameMasks[index];
     if (mask) context.clip(mask, 'evenodd');
     context.fillStyle = '#000';
     context.beginPath();
     const inward = (pose.pupilInward ?? 0) * (index === 0 ? 1 : -1);
-    const radius = eye.pupilRadius ?? pose.pupilRadius ?? 80.85;
+    const radius = (eye.pupilRadius ?? pose.pupilRadius ?? 80.85)
+      * (roundEyes[index] ? pupilScale : 1) / eyeScales[index];
     context.arc(eye.pupilX + x + inward, eye.pupilY + y, radius, 0, 2 * Math.PI);
     context.fill();
     context.restore();
   });
   context.restore();
+
 }
 
 function measureCenterOffset(restingFrame) {
