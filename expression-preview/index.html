@@ -146,16 +146,16 @@ const expressions = {
     blinks: [1680, 2860, 3230, 5240, 5610],
     motionFrequency: 14,
     motion: [
-      { at: 240, tilt: 0.32, stretch: 1.18, lift: 14, pinch: -8 },
-      { at: 1050, tilt: -0.34, stretch: 0.84, lift: -8, pinch: 10, shapeMix: 1 },
-      { at: 1940, tilt: 0.17, stretch: 1.29, lift: 28, pinch: -15, shapeMix: 1 },
-      { at: 2660, tilt: 0.04, stretch: 0.83, lift: -10, pinch: 12, shapeMix: 1 },
+      { at: 240, tilt: 0.32, stretch: 1.18, lift: 14 },
+      { at: 1050, tilt: -0.34, stretch: 0.84, lift: -8, shapeMix: 1 },
+      { at: 1940, tilt: 0.17, stretch: 1.29, lift: 28, shapeMix: 1 },
+      { at: 2660, tilt: 0.04, stretch: 0.83, lift: -10, shapeMix: 1 },
       { at: 3370, tilt: 0.29, stretch: 1.12 },
       { at: 3740, tilt: -0.29, stretch: 0.92, shapeMix: 1 },
       { at: 4140, tilt: 0.25, stretch: 1.10 },
       { at: 4540, tilt: -0.23, stretch: 0.94, shapeMix: 1 },
-      { at: 5120, tilt: -0.05, stretch: 0.82, pinch: 13, shapeMix: 1 },
-      { at: 5700, tilt: 0.31, stretch: 1.23, lift: 18, pinch: -10 },
+      { at: 5120, tilt: -0.05, stretch: 0.82, shapeMix: 1 },
+      { at: 5700, tilt: 0.31, stretch: 1.23, lift: 18 },
       { at: 6380 },
     ],
   },
@@ -369,9 +369,8 @@ function morphEyeShapes(amount, velocity = 0) {
     const height = 161.5 + (287.7 - 161.5) * roundness;
     const direction = index === 0 ? 1 : -1;
     const squash = Math.tanh(velocity / 8) * 0.14 * direction;
-    const recoil = Math.max(-0.12, Math.min(0.12, amount - mix)) * direction;
     const shape = new Path2D();
-    // Blend radial contours so the whole outline flexes during the exchange.
+    // Morph each eye around its own fixed center, with symmetric squash and stretch.
     for (let point = 0; point <= 128; point++) {
       const angle = point / 128 * Math.PI * 2;
       const cosine = Math.cos(angle);
@@ -380,9 +379,8 @@ function morphEyeShapes(amount, velocity = 0) {
       const radius = roundness === 0
         ? 1 / Math.max(Math.abs(cosine), Math.abs(sine))
         : Math.pow(Math.abs(cosine) ** exponent + Math.abs(sine) ** exponent, -1 / exponent);
-      const ripple = 1 + (squash * 0.16 + recoil) * Math.sin(3 * angle);
-      const x = eye.centerX + width / 2 * cosine * radius * (1 + squash) * ripple;
-      const y = 256.5 + height / 2 * sine * radius / (1 + squash) * ripple;
+      const x = eye.centerX + width / 2 * cosine * radius * (1 + squash);
+      const y = 256.5 + height / 2 * sine * radius / (1 + squash);
       if (point === 0) shape.moveTo(x, y);
       else shape.lineTo(x, y);
     }
