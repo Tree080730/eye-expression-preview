@@ -182,12 +182,12 @@ const expressions = {
     ],
     blinks: [1250, 1720, 4560, 5820],
     motion: [
-      { at: 200, lift: 36, stretch: 1.10 },
-      { at: 580, lift: -8, stretch: 0.88 },
-      { at: 770, lift: 25, stretch: 1.06 },
+      { at: 200, lift: 48, stretch: 1.18 },
+      { at: 580, lift: -12, stretch: 0.79 },
+      { at: 770, lift: 35, stretch: 1.13 },
       { at: 1150 },
-      { at: 3630, lift: 31, stretch: 1.09 },
-      { at: 4030, lift: -7, stretch: 0.90 },
+      { at: 3630, lift: 43, stretch: 1.16 },
+      { at: 4030, lift: -10, stretch: 0.81 },
       { at: 4260 },
     ],
   },
@@ -298,10 +298,24 @@ const shapeRhythm = [
   { at: 8010, value: 0 },
 ];
 
-const restingMotion = { stretch: 1, pinch: 0, lift: 0, tilt: 0, shapeMix: 0 };
+const restingMotion = { stretch: 1, pinch: 0, lift: 0, tilt: 0 };
 
-function buildClip({ duration, gaze, blinks, blinkRate = 1, motion, motionFrequency = 10, shape = shapeRhythm }) {
-  const lids = [{ at: 0, openness: 1 }, ...blinks.flatMap(start =>
+function swapBlinkOpenness(timeFromSwap) {
+  const smooth = value => value * value * (3 - 2 * value);
+  if (timeFromSwap < -180 || timeFromSwap >= 230) return 1;
+  if (timeFromSwap < -35) return 1 - smooth((timeFromSwap + 180) / 145);
+  if (timeFromSwap <= 35) return 0;
+  return smooth((timeFromSwap - 35) / 195);
+}
+
+function buildClip({ duration, gaze, blinks, blinkRate = 1, motion, motionFrequency = 10,
+  shape: requestedShape = shapeRhythm, pose = {} }) {
+  const bothRound = pose.eyes?.every(eye => eye.circle);
+  const shape = bothRound ? [{ at: 0, value: 0 }] : requestedShape;
+  const swaps = shape.slice(1);
+  const regularBlinks = blinks.filter(start => swaps.every(swap =>
+    start + 300 * blinkRate < swap.at - 350 || start > swap.at + 580));
+  const lids = [{ at: 0, openness: 1 }, ...regularBlinks.flatMap(start =>
     blinkLidTargets.map(({ at, openness }) => ({ at: start + at * blinkRate, openness })))];
   const x = { position: gaze[0].x, velocity: 0 };
   const y = { position: gaze[0].y, velocity: 0 };
@@ -309,7 +323,7 @@ function buildClip({ duration, gaze, blinks, blinkRate = 1, motion, motionFreque
   const motionSprings = Object.entries(restingMotion).map(([channel, position]) =>
     ({ channel, position, velocity: 0 }));
   const motionTargets = [restingMotion, ...motion];
-  const restingFrame = { x: x.position, y: y.position, openness: 1, ...restingMotion, shapeVelocity: 0 };
+  const restingFrame = { x: x.position, y: y.position, openness: 1, ...restingMotion, shapeMix: 0, shapeVelocity: 0 };
   const frames = [restingFrame];
   let keyframe = 0;
   let lidKeyframe = 0;
@@ -325,16 +339,17 @@ function buildClip({ duration, gaze, blinks, blinkRate = 1, motion, motionFreque
     stepSpring(x, gaze[keyframe].x, gazeFrequency);
     stepSpring(y, gaze[keyframe].y, gazeFrequency);
     stepSpring(lid, lids[lidKeyframe].openness, lidFrequency);
-    const frame = { x: x.position, y: y.position, openness: Math.min(1, lid.position) };
+    const blinkOpenness = Math.min(1, ...swaps.map(swap => swapBlinkOpenness(time - swap.at)));
+    const frame = {
+      x: x.position, y: y.position,
+      openness: Math.min(1, lid.position, blinkOpenness),
+      shapeMix: shape[shapeKeyframe].value, shapeVelocity: 0,
+    };
     for (const spring of motionSprings) {
       const { channel } = spring;
-      const damping = channel === 'shapeMix' ? 0.48 : gazeDamping;
-      const target = channel === 'shapeMix'
-        ? shape[shapeKeyframe].value
-        : motionTargets[motionKeyframe][channel] ?? restingMotion[channel];
-      stepSpring(spring, target, channel === 'shapeMix' ? 14 : motionFrequency, damping);
+      const target = motionTargets[motionKeyframe][channel] ?? restingMotion[channel];
+      stepSpring(spring, target, motionFrequency);
       frame[channel] = spring.position;
-      if (channel === 'shapeMix') frame.shapeVelocity = spring.velocity;
     }
     frames.push(frame);
   }
