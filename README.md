@@ -2,6 +2,8 @@
 
 基于团队提供的眼神设计制作的浏览器交互原型，包含困惑、开心、惊讶、生气、伤心、无聊和困了七种情绪。
 
+在线体验：[打开动态表情预览](https://tree080730.github.io/eye-expression-preview/) 。
+
 ## 运行
 
 直接用 Chrome、Edge 或 Safari 打开 `expression-preview/index.html`，即可离线使用，无需安装依赖。
@@ -20,7 +22,7 @@ python3 -m http.server 8000
 
 首次推送后，在 GitHub 仓库的 Settings → Pages 中将 Source 设为 GitHub Actions，再运行 Publish expression preview 工作流。部署成功后，从 Pages 设置或 Actions 的 github-pages 环境获取实际预览地址。团队成员打开该地址即可操作表情，后续推送到 main 会自动更新网页。
 
-项目已上传至 https://github.com/Tree080730/eye-expression-preview 。首次自动部署因仓库尚未开启 Pages 而停止，需要先完成上述 Pages 设置，再重新运行工作流。
+项目已上传并通过 GitHub Pages 部署。团队成员可直接打开上方的在线体验链接，后续推送到 main 会自动发布更新。
 
 ## 使用
 
