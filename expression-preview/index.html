@@ -17,6 +17,9 @@
   header { margin-bottom: 16px; }
   h1 { margin: 0; font-size: clamp(32px, 6vw, 52px); line-height: 1.12; font-weight: 750; }
   canvas { display: block; width: 100%; height: auto; background: #32ce60; border-radius: 12px; }
+  canvas:fullscreen { width: 100vw; height: 100vh; object-fit: contain; border-radius: 0; }
+  .appearance { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+  input[type="color"] { flex: none; width: 48px; height: 38px; padding: 2px; cursor: pointer; }
   .controls { display: flex; align-items: center; gap: 16px; margin-top: 16px; }
   button {
     min-height: 44px;
@@ -51,6 +54,11 @@
 <main>
   <header><h1>动态表情预览</h1></header>
   <div class="expressions" id="expressions" role="group" aria-label="选择情绪"></div>
+  <div class="appearance">
+    <label for="background">背景颜色</label>
+    <input id="background" type="color" value="#32ce60">
+    <button id="fullscreen" type="button">全屏预览</button>
+  </div>
   <canvas id="face" width="844" height="580" role="img" aria-label="困惑"></canvas>
   <div class="controls">
     <button type="button" id="play">播放</button>
@@ -126,6 +134,42 @@ function stepSpring(spring, target, frequency, damping = gazeDamping) {
 }
 
 const expressions = {
+  idle: {
+    label: '待机', duration: 10400,
+    pose: {
+      blinkCenterY: 274,
+      eyes: [
+        { circle: [282.6, 274, 139.7], pupil: [282.6, 274, 73] },
+        { circle: [561.8, 274, 139.7], pupil: [561.8, 274, 73] },
+      ],
+    },
+    shape: [{ at: 0, value: 0 }],
+    gazeSpeed: 4,
+    gaze: [
+      { at: 0, x: 0, y: 0 },
+      { at: 2400, x: -8, y: 2 },
+      { at: 4300, x: 0, y: 0 },
+      { at: 6800, x: 7, y: -2 },
+      { at: 8500, x: 0, y: 0 },
+    ],
+    blinks: [1900, 6350],
+    motionFrequency: 3,
+    motion: [
+      { at: 300, stretch: 1.012, lift: 2 },
+      { at: 2100, stretch: 0.995, lift: -1 },
+      { at: 4000, stretch: 1.012, lift: 2 },
+      { at: 6000, stretch: 0.995, lift: -1 },
+      { at: 8000, stretch: 1.008, lift: 1 },
+      { at: 9400 },
+    ],
+  },
+  waiting: {
+    label: '等待', duration: 10400,
+    pose: { waiting: true },
+    shape: [{ at: 0, value: 0 }],
+    gaze: [{ at: 0, x: 0, y: 0 }],
+    blinks: [], motion: [],
+  },
   confused: {
     label: '困惑',
     duration: 10400,
@@ -417,6 +461,7 @@ function buildClip({ duration, gaze, blinks, blinkRate = 1, motion, motionFreque
       openness: Math.min(1, lid.position, blinkOpenness),
       shapeMix: shape[shapeKeyframe].value, shapeVelocity: 0,
     };
+    if (pose.waiting) frame.waitingTime = time;
     for (const spring of motionSprings) {
       const { channel } = spring;
       const target = motionTargets[motionKeyframe][channel] ?? restingMotion[channel];
@@ -436,12 +481,22 @@ function buildClip({ duration, gaze, blinks, blinkRate = 1, motion, motionFreque
     frame.stretch *= 1 - Math.min(1, frame.sob / 12) * sobPulse * 0.14;
     frames.push(frame);
   }
+  // Settle smoothly into the exact starting pose before the loop boundary.
+  const returnStart = Math.round((duration - 700) / (stepSeconds * 1000));
+  for (let index = returnStart; index < frames.length; index++) {
+    const progress = Math.min(1, (index - returnStart) / (frames.length - 1 - returnStart));
+    const blend = progress * progress * (3 - 2 * progress);
+    for (const key of Object.keys(restingFrame)) {
+      frames[index][key] += (restingFrame[key] - frames[index][key]) * blend;
+    }
+  }
+  frames[frames.length - 1] = { ...restingFrame };
   frames.push(restingFrame);
   return { duration, frames };
 }
 
 const canvas = document.querySelector('#face');
-const context = canvas.getContext('2d');
+const context = canvas.getContext('2d', { willReadFrequently: true });
 const defaultEyes = [
   { shape: new Path2D(), centerX: 257.55, centerY: 256.65, rectangleWidth: 299.7, rectangleHeight: 161.5, circleDiameter: 287.7, startsRound: false, pupilX: 308.7, pupilY: 288.9 },
   { shape: new Path2D(), centerX: 537.1, centerY: 256.45, rectangleWidth: 299.7, rectangleHeight: 161.5, circleDiameter: 287.7, startsRound: true, pupilX: 600.3, pupilY: 306.2 },
@@ -514,7 +569,94 @@ function morphEyeShapes(amount, velocity = 0) {
   });
 }
 
-function drawFace({ x, y, openness, eyeX, eyeY, stretch, pinch, lift, tilt, shapeMix, shapeVelocity, cheekLift, circleScale, pupilScale, squareScale, squareSquint, eyeTilt, browPress, shakeX, shakeY }) {
+function smoothProgress(value) {
+  const t = Math.max(0, Math.min(1, value));
+  return t * t * t * (t * (t * 6 - 15) + 10);
+}
+
+function drawWaiting({ eyeX, eyeY, waitingTime = 0, morph = 1 }) {
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  if (!measuringBounds) {
+    context.fillStyle = backgroundColor;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+  }
+  context.save();
+  context.translate(canvas.width / 2, canvas.height / 2);
+  context.scale(layoutScale, layoutScale);
+  context.translate(eyeX, eyeY);
+  // One uninterrupted pull-in, rather than restarting easing at each beat.
+  const gatherTime = Math.min(1, morph / 0.57);
+  const gather = smoothProgress(gatherTime);
+  const distance = 139.6 * (1 - gather) ** 1.3;
+  const rebound = (start, end) => {
+    const t = (gatherTime - start) / (end - start);
+    return t > 0 && t < 1 ? Math.sin(Math.PI * t) ** 2 : 0;
+  };
+  let radius = 139.7 - 106.7 * gather - 8 * rebound(0.65, 0.80) + 5 * rebound(0.80, 1);
+  let scaleX = 1 + 0.12 * Math.sin(gatherTime * Math.PI * 2) * Math.sin(gatherTime * Math.PI);
+  let scaleY = 1 / scaleX;
+  let spread = 0;
+  if (morph > 0.57) {
+    const beats = [
+      [0.57, 33, 1,    1,    0],
+      [0.79, 30, 0.92, 1.10, 1.09],
+      [0.90, 34, 1.04, 0.96, 0.97],
+      [1,    33, 1,    1,    1],
+    ];
+    const next = beats.findIndex(beat => beat[0] >= morph);
+    const from = beats[next - 1];
+    const to = beats[next];
+    const blend = smoothProgress((morph - from[0]) / (to[0] - from[0]));
+    [radius, scaleX, scaleY, spread] = from.slice(1).map((value, index) =>
+      value + (to[index + 1] - value) * blend);
+  }
+  const waveStrength = smoothProgress(Math.min(waitingTime, 10400 - waitingTime) / 450);
+  const gathering = morph <= 0.57;
+  const count = gathering ? (distance < 0.001 ? 1 : 2) : 6;
+  // Whites are drawn together before pupils, so overlapping eyes merge cleanly.
+  const dots = Array.from({ length: count }, (_, index) => {
+    const phase = waitingTime / 1040 - index / 6;
+    const pulse = Math.max(0, Math.cos(phase * Math.PI * 2)) ** 4 * waveStrength;
+    return {
+      x: gathering ? (count === 1 ? 0 : (index === 0 ? -distance : distance))
+        : (index - 2.5) * 100 * spread,
+      y: -32 * pulse,
+      radius: radius + 5 * pulse,
+      sx: scaleX * (1 - 0.10 * pulse),
+      sy: scaleY * (1 + 0.17 * pulse),
+    };
+  });
+  context.fillStyle = '#fff';
+  for (const dot of dots) {
+    context.beginPath();
+    context.ellipse(dot.x, dot.y, dot.radius * dot.sx, dot.radius * dot.sy, 0, 0, Math.PI * 2);
+    context.fill();
+  }
+  if (gathering && count === 2) {
+    // Pupils follow the gathering whites and simply fade out in place.
+    // Keep their size fixed; no upward roll or independent shrinking.
+    const pupilOpacity = 1 - smoothProgress((gather - 0.03) / 0.57);
+    dots.forEach(dot => {
+      context.save();
+      context.beginPath();
+      context.ellipse(dot.x, dot.y, dot.radius * dot.sx, dot.radius * dot.sy, 0, 0, Math.PI * 2);
+      context.clip();
+      context.fillStyle = '#000';
+      context.globalAlpha = pupilOpacity;
+      context.beginPath();
+      context.arc(dot.x, dot.y, 73, 0, Math.PI * 2);
+      context.fill();
+      context.restore();
+    });
+  }
+  context.restore();
+}
+
+function drawFace({ x, y, openness, eyeX, eyeY, stretch, pinch, lift, tilt, shapeMix, shapeVelocity, cheekLift, circleScale, pupilScale, squareScale, squareSquint, eyeTilt, browPress, shakeX, shakeY, waitingTime }) {
+  if (pose.waiting) {
+    drawWaiting({ openness, eyeX, eyeY, waitingTime });
+    return;
+  }
   const frameEyes = shapeMix !== 0 || shapeVelocity !== 0
     ? morphEyeShapes(shapeMix, shapeVelocity)
     : eyes;
@@ -540,9 +682,15 @@ function drawFace({ x, y, openness, eyeX, eyeY, stretch, pinch, lift, tilt, shap
     mask.arc(x, y, radius, 0, 2 * Math.PI);
     return mask;
   });
-  context.fillStyle = '#32ce60';
-  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  if (!measuringBounds) {
+    context.fillStyle = backgroundColor;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+  }
   context.save();
+  context.translate(canvas.width / 2, canvas.height / 2);
+  context.scale(layoutScale, layoutScale);
+  context.translate(-canvas.width / 2, -canvas.height / 2);
   const eyeCenterX = canvas.width / 2;
   const eyeCenterY = pose.blinkCenterY ?? 256.5;
   context.translate(eyeCenterX + eyeX + shakeX, eyeCenterY + eyeY - lift + shakeY);
@@ -577,29 +725,50 @@ function drawFace({ x, y, openness, eyeX, eyeY, stretch, pinch, lift, tilt, shap
 
 }
 
-function measureCenterOffset(restingFrame) {
-  drawFace({ ...restingFrame, eyeX: 0, eyeY: 0 });
+let measuringBounds = false;
+let layoutScale = 1;
+let backgroundColor = '#32ce60';
+
+function measureFrameBounds(frame) {
+  drawFace({ ...frame, eyeX: 0,
+    eyeY: (pose.eyeBounce ?? 0) * (frame.y - clip.frames[0].y) });
   const { width, height } = canvas;
-  const image = context.getImageData(0, 0, width, height);
-  const pixels = new Uint32Array(image.data.buffer);
-  const background = pixels[0];
-  let left = width;
-  let right = -1;
-  let top = height;
-  let bottom = -1;
+  const pixels = context.getImageData(0, 0, width, height).data;
+  let left = width, right = -1, top = height, bottom = -1;
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
-      if (pixels[y * width + x] === background) continue;
+      if (pixels[(y * width + x) * 4 + 3] === 0) continue;
       left = Math.min(left, x);
       right = Math.max(right, x);
       top = Math.min(top, y);
       bottom = y;
     }
   }
-  return {
-    x: (width - left - right - 1) / 2,
-    y: (height - top - bottom - 1) / 2,
-  };
+  return { left, right, top, bottom };
+}
+
+function measureLayout() {
+  measuringBounds = true;
+  layoutScale = 1;
+  try {
+    const resting = measureFrameBounds(clip.frames[0]);
+    const centerX = (resting.left + resting.right + 1) / 2;
+    const centerY = (resting.top + resting.bottom + 1) / 2;
+    let halfWidth = 0, halfHeight = 0;
+    for (let index = 0; index < clip.frames.length; index += 6) {
+      const bounds = measureFrameBounds(clip.frames[index]);
+      halfWidth = Math.max(halfWidth, centerX - bounds.left, bounds.right + 1 - centerX);
+      halfHeight = Math.max(halfHeight, centerY - bounds.top, bounds.bottom + 1 - centerY);
+    }
+    return {
+      x: canvas.width / 2 - centerX,
+      y: canvas.height / 2 - centerY,
+      scale: Math.min((canvas.width / 2 - 12) / (halfWidth + 30),
+        (canvas.height / 2 - 12) / (halfHeight + 20)),
+    };
+  } finally {
+    measuringBounds = false;
+  }
 }
 
 const timeline = document.querySelector('#timeline');
@@ -611,7 +780,14 @@ let pose;
 let eyes;
 let eyeMasks;
 let centerOffset;
-const centerOffsets = new WeakMap();
+const scenes = new Map();
+let sharedLayoutScale;
+const transitionDuration = 800;
+const waitingEntryDuration = 500;
+const waitingExitDuration = 500;
+function sceneTransitionDuration(expression) {
+  return expression === expressions.waiting ? waitingEntryDuration : transitionDuration;
+}
 const clock = new MotionClock();
 let position = 0;
 let playbackStart = 0;
@@ -626,19 +802,56 @@ const gazeOffset = { x: 0, y: 0, weight: 0 };
 const pupilCenterOffset = { x: 48, y: 36 };
 const eyeFollowAmount = 0.35;
 
+function activateScene(scene) {
+  pose = scene.pose;
+  eyes = scene.eyes;
+  eyeMasks = scene.eyeMasks;
+  centerOffset = scene.centerOffset;
+}
+
 function drawCurrentFace() {
-  // As in the reference, manual gaze softens the scripted eye movement.
+  let scene = scenes.get(selectedExpression);
+  let frame = expressionFrame;
+  let transitionOpenness = 1;
+  if (selectedExpression === expressions.waiting && position > 0 && position < clip.duration) {
+    const core = scene.clip;
+    const morph = Math.min(1, position / waitingEntryDuration, (clip.duration - position) / waitingExitDuration);
+    const eyeX = (gazeOffset.x + pupilCenterOffset.x * gazeOffset.weight) * eyeFollowAmount;
+    const eyeY = (gazeOffset.y + pupilCenterOffset.y * gazeOffset.weight) * eyeFollowAmount;
+    drawWaiting({ eyeX, eyeY,
+      waitingTime: Math.max(0, Math.min(core.duration, position - waitingEntryDuration)), morph });
+    return;
+  }
+  if (selectedExpression !== expressions.idle) {
+    let transitionTime;
+    let useIdle = false;
+    if (position < transitionDuration) {
+      transitionTime = position;
+      useIdle = transitionTime < 350;
+    } else if (position >= clip.duration - transitionDuration) {
+      transitionTime = position - (clip.duration - transitionDuration);
+      useIdle = transitionTime >= 350;
+    }
+    if (transitionTime !== undefined) {
+      transitionOpenness = swapBlinkOpenness(transitionTime - 350);
+      if (useIdle) {
+        scene = scenes.get(expressions.idle);
+        frame = scene.clip.frames[0];
+      }
+    }
+  }
+  activateScene(scene);
   const expressionWeight = 1 - 0.8 * gazeOffset.weight;
-  // Move the two eye shapes together using the directional part of the gaze.
   const eyeX = (gazeOffset.x + pupilCenterOffset.x * gazeOffset.weight) * eyeFollowAmount;
   const eyeY = (gazeOffset.y + pupilCenterOffset.y * gazeOffset.weight) * eyeFollowAmount;
   const referenceWeight = pose.eyes ? gazeOffset.weight : 0;
   drawFace({
-    ...expressionFrame,
-    x: expressionFrame.x * expressionWeight + gazeOffset.x + pupilCenterOffset.x * referenceWeight,
-    y: expressionFrame.y * expressionWeight + gazeOffset.y + pupilCenterOffset.y * referenceWeight,
+    ...frame,
+    openness: frame.openness * transitionOpenness,
+    x: frame.x * expressionWeight + gazeOffset.x + pupilCenterOffset.x * referenceWeight,
+    y: frame.y * expressionWeight + gazeOffset.y + pupilCenterOffset.y * referenceWeight,
     eyeX: centerOffset.x + eyeX,
-    eyeY: centerOffset.y + eyeY + (pose.eyeBounce ?? 0) * (expressionFrame.y - clip.frames[0].y),
+    eyeY: centerOffset.y + eyeY + (pose.eyeBounce ?? 0) * (frame.y - scene.clip.frames[0].y),
   });
 }
 
@@ -691,10 +904,11 @@ reducedMotion.addEventListener('change', clearPointer);
 
 function show(time) {
   position = Math.min(clip.duration, time);
-  const frameIndex = position === clip.duration
-    ? clip.frames.length - 1
-    : Math.round(position / (stepSeconds * 1000));
-  expressionFrame = clip.frames[frameIndex];
+  const core = scenes.get(selectedExpression).clip;
+  const elapsed = selectedExpression === expressions.idle ? position : position - sceneTransitionDuration(selectedExpression);
+  const coreTime = Math.max(0, Math.min(core.duration, elapsed));
+  const frameIndex = Math.min(core.frames.length - 1, Math.round(coreTime / (stepSeconds * 1000)));
+  expressionFrame = core.frames[frameIndex];
   drawCurrentFace();
   timeline.value = Math.round(position);
   const seconds = (position / 1000).toFixed(2) + ' s';
@@ -734,17 +948,27 @@ const expressionButtons = Object.values(expressions).map(expression => {
   return button;
 });
 
-function selectExpression(expression) {
-  selectedExpression = expression;
-  clip = buildClip(expression);
-  pose = expression.pose ?? {};
-  eyes = pose.eyes?.map(buildReferenceEye) ?? defaultEyes;
-  eyeMasks = pose.top === undefined ? null : buildEyeMasks(pose);
-  centerOffset = centerOffsets.get(expression);
-  if (!centerOffset) {
-    centerOffset = measureCenterOffset(clip.frames[0]);
-    centerOffsets.set(expression, centerOffset);
+function prepareScenes() {
+  for (const expression of Object.values(expressions)) {
+    clip = buildClip(expression);
+    pose = expression.pose ?? {};
+    eyes = pose.eyes?.map(buildReferenceEye) ?? defaultEyes;
+    eyeMasks = pose.top === undefined ? null : buildEyeMasks(pose);
+    const offset = measureLayout();
+    scenes.set(expression, { clip, pose, eyes, eyeMasks, centerOffset: offset });
   }
+  sharedLayoutScale = Math.min(...Array.from(scenes.values(), scene => scene.centerOffset.scale));
+}
+
+function selectExpression(expression) {
+  if (scenes.size === 0) prepareScenes();
+  selectedExpression = expression;
+  const scene = scenes.get(expression);
+  activateScene(scene);
+  clip = { ...scene.clip,
+    duration: scene.clip.duration + (expression === expressions.idle ? 0
+      : expression === expressions.waiting ? waitingEntryDuration + waitingExitDuration : transitionDuration * 2) };
+  layoutScale = sharedLayoutScale;
   timeline.max = clip.duration;
   canvas.setAttribute('aria-label', expression.label);
   for (const button of expressionButtons) {
@@ -764,6 +988,17 @@ timeline.addEventListener('input', () => {
   pause();
 });
 
+const backgroundInput = document.querySelector('#background');
+backgroundInput.addEventListener('input', () => {
+  backgroundColor = backgroundInput.value;
+  canvas.style.backgroundColor = backgroundColor;
+  drawCurrentFace();
+});
+document.querySelector('#fullscreen').addEventListener('click', async () => {
+  if (document.fullscreenElement) await document.exitFullscreen();
+  else await canvas.requestFullscreen();
+});
+
 const exportButton = document.querySelector('#export-gif');
 const exportStatus = document.querySelector('#export-status');
 exportButton.addEventListener('click', async () => {
@@ -771,7 +1006,8 @@ exportButton.addEventListener('click', async () => {
   const savedPosition = position;
   const wasRunning = clock.running;
   const controls = [...document.querySelectorAll('button, input')];
-  const palette = [[50, 206, 96], [255, 255, 255], [0, 0, 0]];
+  const rgb = backgroundColor.match(/[0-9a-f]{2}/gi).map(value => parseInt(value, 16));
+  const palette = [rgb, [255, 255, 255], [0, 0, 0]];
   // Keep the same palette throughout the animation, including antialiased edges.
   for (const [from, to] of [[palette[0], palette[1]], [palette[0], palette[2]], [palette[1], palette[2]]]) {
     for (let step = 1; step < 16; step++) {
@@ -790,7 +1026,7 @@ exportButton.addEventListener('click', async () => {
     const delay = 50;
     const frameCount = Math.ceil(clip.duration / delay);
     for (let frame = 0; frame < frameCount; frame++) {
-      show(frame * delay);
+      show(frame === frameCount - 1 ? clip.duration : frame * delay);
       const { data } = context.getImageData(0, 0, canvas.width, canvas.height);
       const indexed = window.gifenc.applyPalette(data, palette);
       encoder.writeFrame(indexed, canvas.width, canvas.height, {
@@ -836,7 +1072,7 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 
-selectExpression(expressions.confused);
+selectExpression(expressions.idle);
 </script>
 </body>
 </html>
