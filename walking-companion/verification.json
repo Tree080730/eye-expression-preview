@@ -1,0 +1,12 @@
+{
+  "scope": "Metal poster theme with unchanged single-screen interactions",
+  "checks": [
+    "Desktop home and split view visually inspected",
+    "390x844 mobile home and split view inspected with no page overflow",
+    "Eight expression controls",
+    "Mock device connection and scene-mode sync",
+    "Drawer open, close and inert focus state",
+    "Scene tabs remain below video"
+  ],
+  "media": "Concept images, video interfaces retained; no real hardware connection"
+}

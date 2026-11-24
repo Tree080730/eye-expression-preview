@@ -1,4 +1,4 @@
-name: Publish expression preview
+name: Publish expression and companion previews
 
 on:
   push:
@@ -25,10 +25,15 @@ jobs:
         uses: actions/checkout@v6
       - name: Configure Pages
         uses: actions/configure-pages@v5
+      - name: Assemble both previews
+        run: |
+          mkdir -p _site/walking-companion
+          cp -R expression-preview/. _site/
+          cp -R walking-companion/index.html walking-companion/css walking-companion/js walking-companion/assets _site/walking-companion/
       - name: Upload preview
         uses: actions/upload-pages-artifact@v4
         with:
-          path: expression-preview
+          path: _site
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4

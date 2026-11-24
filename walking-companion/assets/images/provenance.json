@@ -1,0 +1,14 @@
+{
+  "walking": {
+    "method": "OpenAI built-in image generation",
+    "prompt": "Natural editorial photograph: ordinary pedestrian walking rightward on quiet Japanese sidewalk at 60% horizontal position, cream beige modern building, muted orange awning, pale blue sky, gray dark trousers, natural daylight. Unprocessed photo, no robot, no text, no glitch."
+  },
+  "companion": "User supplied product reference; copied without modification",
+  "reference": "User supplied visual reference; copied without modification",
+  "photos": {
+    "chilling": "https://images.unsplash.com/photo-1497250681960-ef046c08a56e",
+    "working": "https://images.unsplash.com/photo-1497366754035-f200968a6e72",
+    "exploring": "https://images.unsplash.com/photo-1470770841072-f978cf4d019e",
+    "playing": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e"
+  }
+}
