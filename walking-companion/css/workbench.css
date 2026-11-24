@@ -3,3 +3,11 @@
 #expression-workbench{width:100%;height:100%;border:0;display:block;flex:1;min-height:0;position:relative;z-index:1;background:transparent}
 .workbench-loading{position:absolute;inset:0;display:grid;place-items:center;font-size:13px;color:#fff;letter-spacing:1px}
 .workbench-loaded .workbench-loading{display:none}
+/* Focus on the single expression collection and scene media. */
+@media(min-width:761px){.experience .hero{width:36%}.experience .moments{left:36%}}
+.moments>.section-heading,.moments .scene-copy,.moments .scene-stamp,.moments #scene-description,.moments>.media-message{display:none}
+.moments{gap:16px}
+.moments .scene-details{display:flex;justify-content:flex-end;align-items:center;min-height:42px}
+.moments .scene-details .text-link{font-size:12px;gap:22px}
+.developer-status{font-size:11px;color:#fff;order:-1;margin:0 auto 0 0}
+@media(max-width:760px){.moments{gap:8px}.moments .scene-details{min-height:25px}.moments .scene-details .text-link{font-size:9px}.developer-status{font-size:8px}}

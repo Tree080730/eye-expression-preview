@@ -5,24 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>UNION · 表情工作台</title>
   <link rel="stylesheet" href="expression-workbench.css">
-  <link rel="stylesheet" href="union-theme.css?v=contrast-1">
-  <script defer src="union-bridge.js?v=contrast-1"></script>
+  <link rel="stylesheet" href="union-theme.css?v=square-focus-1">
+  <script defer src="union-bridge.js?v=square-focus-1"></script>
   <script defer src="expression-workbench-data.js?v=9a21009"></script>
-  <script defer src="expression-complete-data.js?v=9a21009"></script>
-  <script defer src="expression-optimized-data.js?v=9a21009"></script>
   <script defer src="expression-optimized-player.js?v=9a21009"></script>
-  <script defer src="expression-contour-data.js?v=9a21009"></script>
-  <script defer src="expression-contour-player.js?v=9a21009"></script>
   <script defer src="expression-square-data.js?v=9a21009"></script>
   <script defer src="expression-square-player.js?v=9a21009"></script>
   <script defer src="expression-workbench-player.js?v=9a21009"></script>
   <script defer src="expression-workbench.js?v=9a21009"></script>
-  <script defer src="expression-complete-preview.js?v=9a21009"></script>
 </head>
 <body>
+<span id="fw-version" hidden></span>
   <header class="masthead">
     <a class="brand" href="expression-workbench.html" aria-label="AirBoat 表情工作台"><span class="mark" aria-hidden="true"><i></i><i></i></span><span><small>UNION / EXPRESSION LAB</small><strong>表情工作台</strong></span></a>
-    <div class="mast-actions">
+    <div class="mast-actions" hidden>
       <a href="expression-workbench.html" target="_blank" rel="noopener">展开 ↗</a>
       <button id="rules-open">制作规范</button>
       <button id="plan-open">替换清单 <span class="count" id="plan-count">0</span></button>
@@ -34,12 +30,7 @@
     <section class="board" aria-label="表情节点画布">
       <div class="toolbar">
         <div class="segmented" id="versions" aria-label="素材版本">
-          <button data-version="original" aria-pressed="false">原版</button>
-          <button data-version="current" aria-pressed="false">早期小样 <span id="fw-version"></span></button>
-          <button data-version="complete" aria-pressed="false">新表情 · 240</button>
-          <button data-version="optimized" aria-pressed="true">高清优化 · 480</button>
-          <button data-version="contour" aria-pressed="false">微动作 · 480</button>
-          <button data-version="square" aria-pressed="false">方圆怪趣 · 新</button>
+          <button data-version="square" aria-pressed="true">方圆怪趣</button>
         </div>
         <div class="search-wrap">
           <label class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg><input id="search" placeholder="搜索语义、触发或素材" aria-label="搜索节点" autocomplete="off" aria-controls="search-results" aria-expanded="false"></label>

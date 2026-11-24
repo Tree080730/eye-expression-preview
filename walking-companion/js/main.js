@@ -38,7 +38,6 @@ $('#video-toggle').addEventListener('click',async()=>{if(videoActive){resetMedia
  videoActive=true;video.src=manager.current.video;video.poster=manager.current.poster;$('#video-toggle').textContent='正在加载…';$('#media-message').textContent='正在加载场景视频…';
  try{await video.play();if(globalPaused||scenePaused)video.pause();}catch{mediaError();}
 });
-$('#scene-device-link').addEventListener('click',()=>{report(device.connected?`正在体验 ${manager.current.name} 场景。`:`连接模拟伙伴，即可体验 ${manager.current.name} 场景。`);});
 const connect=$('#connect-button');
 device.addEventListener('status',e=>{const s=e.detail;$('.device-console').classList.toggle('connected',s.connected);$('#connection-label').textContent=s.connected?'伙伴已连接':'尚未连接';$('#device-name').textContent=s.connected?s.name:'—';$('#device-id').textContent=s.connected?s.id:'—';$('#device-state').textContent=s.connected?s.behavior:'等待相遇';connect.textContent=s.connected?'断开连接 ↗':'连接伙伴 ↗';document.querySelectorAll('[data-action]').forEach(b=>b.disabled=!s.connected);});
 connect.addEventListener('click',async()=>{connect.disabled=true;const wasConnected=device.connected;$('#connection-label').textContent=wasConnected?'正在断开…':'正在寻找伙伴…';

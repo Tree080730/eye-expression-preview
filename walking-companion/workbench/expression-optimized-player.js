@@ -160,16 +160,4 @@
   return Optimized;
   }
   window.AirboatLayeredPlayer = createPlayer;
-  const pack = window.AIRBOAT_OPTIMIZED_PACK;
-  window.AirboatOptimized=createPlayer(pack);
-  data.optimized={};
-  for (const key of [...Object.keys(pack.clips),"neutral"]) {
-    const actual=key==="neutral" ? "idle" : key,c=pack.clips[actual],n=pack.transition_frames;
-    const file=`optimized-${actual}.afm`, frames=n*2+c.body_frames;
-    const refs=new Set(c.keyframes.flatMap(f=>[...f.layers,f.accent].filter(Boolean).map(r=>r[0])));
-    data.assets[file]={width:480,height:480,frames,kind:"optimized",semantic:actual,
-      bytes:[...refs].reduce((s,i)=>s+pack.sprites[i].bytes,0),shared:true};
-    data.optimized[key]={file,fps:pack.fps,loop:true,range:[n,n+c.body_frames],fill:true,semantic:key,
-      segments:{entry:[0,n],performance:[n,n+c.body_frames],exit:[n+c.body_frames,frames]}};
-  }
 })();

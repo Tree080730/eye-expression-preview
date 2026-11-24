@@ -70,3 +70,11 @@ body.face-above-board{display:grid;grid-template-rows:clamp(175px,34dvh,320px) 5
 .face-above-board .edge.dim{opacity:.2}
 .face-above-board .edge.hot{opacity:1;stroke-width:3}
 .face-above-board .node::after{width:7px;height:7px;box-shadow:0 0 0 2px #536079}
+/* One collection, no production or replacement actions in the public workbench. */
+.face-above-board .mast-actions{display:none!important}
+.face-above-board .segmented{width:auto;flex:0 0 auto;border:0;padding:0}
+.face-above-board .segmented button{font-size:11px;white-space:nowrap;padding:5px 12px;min-height:30px;cursor:default}
+.face-above-board .search-wrap{width:auto;flex:1;max-width:360px}
+@media(max-width:559px){.face-above-board .segmented{width:auto;flex-wrap:nowrap}.face-above-board .segmented button{font-size:10px;flex-basis:auto}.face-above-board .search-wrap{width:auto}.face-above-board .search svg{display:block}}
+/* A narrow desktop pane still deserves a full-height expression presentation. */
+@media(min-height:500px){body.face-above-board{grid-template-rows:clamp(175px,34dvh,320px) 48px minmax(0,1fr)}.face-above-board>.masthead{height:48px}}

@@ -11,14 +11,16 @@
     "Cache version for scripts",
     "Panoramic expression above full-width workbench; hidden inspector controls",
     "Uniform face scale, vertical crop, source-color side extension",
-    "Continuous presentation playback and compact graph initialization"
+    "Continuous presentation playback and compact graph initialization",
+    "Square Pop only: removed other libraries and source GIF candidates",
+    "Public actions removed; developer integration entry is on the parent page"
   ],
   "files": [
     {
       "file": "expression-workbench.html",
       "sha256": "48f91121dc3cd8823197cf98f0d61d3770712b98505345d211be8b6af5889729",
       "bytes": 12565,
-      "local_sha256": "7eb99b0327ae4559760cefe2ee76f7cca5a0f0d860b0b2c652687856a040b478"
+      "local_sha256": "758e536293e773b855be78c923e2ed69c49dadae93d283abb19036701d2a1691"
     },
     {
       "file": "expression-workbench.css",
@@ -30,7 +32,7 @@
       "file": "expression-workbench.js",
       "sha256": "c1344d03cb8058b8e4cf5613616e6ce8ec242900c3ebc293696f3089b51ffd25",
       "bytes": 31576,
-      "local_sha256": "e2fe0068a9aecb3dc2b06f102aa74d7c8bfa891562dd0bf9d8280ada7c5690c8"
+      "local_sha256": "de35503943a048b99774e647683582e06be1c13cf3f0beb349d440aad3ba9d8d"
     },
     {
       "file": "expression-workbench-player.js",
@@ -42,43 +44,13 @@
       "file": "expression-workbench-data.js",
       "sha256": "c54c6a076aaccfad9006b3eb60550cbe3d75cd9494bda5ee55414aa184a50469",
       "bytes": 7256813,
-      "local_sha256": "31b2f46db5f963ff696fc894d08e262c7f88f84a0097dd709e480c31825f8114"
-    },
-    {
-      "file": "expression-complete-data.js",
-      "sha256": "13b41b8029cea214b6096def1dca770d88c4be178337f32ab03959fabeaa2481",
-      "bytes": 5091401,
-      "local_sha256": "13b41b8029cea214b6096def1dca770d88c4be178337f32ab03959fabeaa2481"
-    },
-    {
-      "file": "expression-optimized-data.js",
-      "sha256": "29fdc915c256f9d3e7488e08c15fb3ee3a6bc5d7e098d4af5b807cca5294c089",
-      "bytes": 2661206,
-      "local_sha256": "29fdc915c256f9d3e7488e08c15fb3ee3a6bc5d7e098d4af5b807cca5294c089"
+      "local_sha256": "49e1b6808cd9f1dbd63456d2c855fd251ea55e670200dd283c91065fc04c8156"
     },
     {
       "file": "expression-optimized-player.js",
       "sha256": "2cc0256ea1de523343f7582eb3a3939db91492a434361600acc9125aa14775b4",
       "bytes": 9441,
-      "local_sha256": "2cc0256ea1de523343f7582eb3a3939db91492a434361600acc9125aa14775b4"
-    },
-    {
-      "file": "expression-complete-preview.js",
-      "sha256": "2bc1f8ad522476e41d5f373c70b9b0c95df09f518a5f3bdc53425d0929640da4",
-      "bytes": 9184,
-      "local_sha256": "2bc1f8ad522476e41d5f373c70b9b0c95df09f518a5f3bdc53425d0929640da4"
-    },
-    {
-      "file": "expression-contour-data.js",
-      "sha256": "80a414e0ad74272b1fe4b1ee890c52a6c761ab02187b95d64bb69a2cc5e8afc1",
-      "bytes": 2337017,
-      "local_sha256": "80a414e0ad74272b1fe4b1ee890c52a6c761ab02187b95d64bb69a2cc5e8afc1"
-    },
-    {
-      "file": "expression-contour-player.js",
-      "sha256": "ff19ad6460512cac8add46b6b5b4e333db6ed910f39f42212f8cb01ef456ea94",
-      "bytes": 1116,
-      "local_sha256": "ff19ad6460512cac8add46b6b5b4e333db6ed910f39f42212f8cb01ef456ea94"
+      "local_sha256": "8731dd545a2d1ecebb6495e770da2d665896074fe9f360c8cf901b328a1ca7d1"
     },
     {
       "file": "expression-square-data.js",

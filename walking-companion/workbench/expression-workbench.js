@@ -36,7 +36,7 @@
   let storage = true, plan = [];
   try { plan = JSON.parse(localStorage.getItem(storageKey) || "[]"); if (!Array.isArray(plan)) plan = []; }
   catch { storage = false; }
-  let version = "optimized", selected = "semantic:happy", nodes = new Map(), edges = [];
+  let version = "square", selected = "semantic:happy", nodes = new Map(), edges = [];
   let scale = 1, x = 0, y = 0, initialized = false, slideTimer;
   let active, elapsed = 0, lastTick = null, stamp = "", fault = false;
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -514,13 +514,7 @@
   $("license").textContent = data.license;
   $("source-revision").textContent = "原版素材修订 "+data.revision+"。原版、早期小样与新表情使用同一语义节点；新表情展示完整交付素材，设备状态另行核对。";
   $("fw-version").textContent = data.version;
-  const micro = new URLSearchParams(location.search).get("micro");
   const square = new URLSearchParams(location.search).get("square");
-  if (micro !== null) {
-    version = "contour";
-    if (menu.includes(micro)) selected = id("semantic",micro);
-    for (const b of $("versions").querySelectorAll("button")) b.setAttribute("aria-pressed",String(b.dataset.version === version));
-  }
   if (square !== null && data.square) {
     version = "square";
     if (menu.includes(square)) selected = id("semantic",square);
