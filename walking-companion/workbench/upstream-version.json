@@ -13,14 +13,15 @@
     "Uniform face scale, vertical crop, source-color side extension",
     "Continuous presentation playback and compact graph initialization",
     "Square Pop only: removed other libraries and source GIF candidates",
-    "Public actions removed; developer integration entry is on the parent page"
+    "Public actions removed; developer integration entry is on the parent page",
+    "Unified logo-face-node hierarchy; collection and search toolbar hidden"
   ],
   "files": [
     {
       "file": "expression-workbench.html",
       "sha256": "48f91121dc3cd8823197cf98f0d61d3770712b98505345d211be8b6af5889729",
       "bytes": 12565,
-      "local_sha256": "758e536293e773b855be78c923e2ed69c49dadae93d283abb19036701d2a1691"
+      "local_sha256": "360387e28a8d7e4ca3d83b22318c1e9194813a5609f079f70b1c5e19a9dc4853"
     },
     {
       "file": "expression-workbench.css",

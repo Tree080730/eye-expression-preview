@@ -5,7 +5,7 @@ addEventListener('DOMContentLoaded',()=>{
   document.body.classList.add('face-above-board');
   const screen=$('.screen');
   screen.setAttribute('aria-label','实时表情预览');
-  document.body.prepend(screen);
+  $('.masthead').after(screen);
   const face=$('#face');
   const fitFace=()=>screen.style.setProperty('--face-size',Math.max(1,Math.min(screen.clientWidth*.94,screen.clientHeight*.94))+'px');
   new ResizeObserver(fitFace).observe(screen);

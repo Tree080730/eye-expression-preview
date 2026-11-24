@@ -78,3 +78,10 @@ body.face-above-board{display:grid;grid-template-rows:clamp(175px,34dvh,320px) 5
 @media(max-width:559px){.face-above-board .segmented{width:auto;flex-wrap:nowrap}.face-above-board .segmented button{font-size:10px;flex-basis:auto}.face-above-board .search-wrap{width:auto}.face-above-board .search svg{display:block}}
 /* A narrow desktop pane still deserves a full-height expression presentation. */
 @media(min-height:500px){body.face-above-board{grid-template-rows:clamp(175px,34dvh,320px) 48px minmax(0,1fr)}.face-above-board>.masthead{height:48px}}
+/* One hierarchy: workbench identity, expression, then the node canvas. */
+body.face-above-board{grid-template-rows:48px clamp(175px,34dvh,320px) minmax(0,1fr)}
+.face-above-board>.masthead{grid-row:1;height:48px;border-bottom:1px solid var(--line)}
+.face-above-board>.screen{grid-row:2}
+.face-above-board .toolbar{display:none}
+.face-above-board .board{grid-template-rows:minmax(0,1fr) auto}
+@media(max-height:499px){body.face-above-board{grid-template-rows:38px clamp(95px,35dvh,140px) minmax(0,1fr)}.face-above-board>.masthead{height:38px}}
