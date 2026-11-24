@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UNION · 表情工作台</title>
+  <link rel="stylesheet" href="expression-workbench.css">
+  <link rel="stylesheet" href="union-theme.css?v=contrast-1">
+  <script defer src="union-bridge.js?v=contrast-1"></script>
+  <script defer src="expression-workbench-data.js?v=9a21009"></script>
+  <script defer src="expression-complete-data.js?v=9a21009"></script>
+  <script defer src="expression-optimized-data.js?v=9a21009"></script>
+  <script defer src="expression-optimized-player.js?v=9a21009"></script>
+  <script defer src="expression-contour-data.js?v=9a21009"></script>
+  <script defer src="expression-contour-player.js?v=9a21009"></script>
+  <script defer src="expression-square-data.js?v=9a21009"></script>
+  <script defer src="expression-square-player.js?v=9a21009"></script>
+  <script defer src="expression-workbench-player.js?v=9a21009"></script>
+  <script defer src="expression-workbench.js?v=9a21009"></script>
+  <script defer src="expression-complete-preview.js?v=9a21009"></script>
+</head>
+<body>
+  <header class="masthead">
+    <a class="brand" href="expression-workbench.html" aria-label="AirBoat 表情工作台"><span class="mark" aria-hidden="true"><i></i><i></i></span><span><small>UNION / EXPRESSION LAB</small><strong>表情工作台</strong></span></a>
+    <div class="mast-actions">
+      <a href="expression-workbench.html" target="_blank" rel="noopener">展开 ↗</a>
+      <button id="rules-open">制作规范</button>
+      <button id="plan-open">替换清单 <span class="count" id="plan-count">0</span></button>
+    </div>
+  </header>
+  <noscript>请启用 JavaScript 打开表情工作台。</noscript>
+  <div class="compact-views" role="group" aria-label="工作台视图"><button data-view="graph" aria-pressed="true">节点关系</button><button data-view="preview" aria-pressed="false">动画预览</button></div>
+  <main class="studio">
+    <section class="board" aria-label="表情节点画布">
+      <div class="toolbar">
+        <div class="segmented" id="versions" aria-label="素材版本">
+          <button data-version="original" aria-pressed="false">原版</button>
+          <button data-version="current" aria-pressed="false">早期小样 <span id="fw-version"></span></button>
+          <button data-version="complete" aria-pressed="false">新表情 · 240</button>
+          <button data-version="optimized" aria-pressed="true">高清优化 · 480</button>
+          <button data-version="contour" aria-pressed="false">微动作 · 480</button>
+          <button data-version="square" aria-pressed="false">方圆怪趣 · 新</button>
+        </div>
+        <div class="search-wrap">
+          <label class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg><input id="search" placeholder="搜索语义、触发或素材" aria-label="搜索节点" autocomplete="off" aria-controls="search-results" aria-expanded="false"></label>
+          <div class="search-results" id="search-results" hidden></div>
+        </div>
+      </div>
+      <div class="viewport" id="viewport" tabindex="0" aria-label="节点画布，可拖动和缩放">
+        <div id="world" class="world">
+          <svg id="edges" aria-hidden="true"></svg>
+          <div id="nodes"></div>
+        </div>
+      </div>
+      <div class="board-footer">
+        <div class="legend"><span class="trigger-color">触发</span><span class="recipe-color">编排</span><span class="semantic-color">语义</span><span class="asset-color">素材</span></div>
+        <div class="zoom-tools" aria-label="视图操作">
+          <button id="focus-node" title="定位选中节点" aria-label="定位选中节点"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg></button>
+          <button id="fit" title="适应全部节点" aria-label="适应全部节点"><svg viewBox="0 0 24 24"><path d="M9 4H4v5m11-5h5v5M4 15v5h5m11-5v5h-5"/></svg></button>
+          <button id="zoom-out" title="缩小" aria-label="缩小"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+          <output id="zoom-value">100%</output>
+          <button id="zoom-in" title="放大" aria-label="放大"><svg viewBox="0 0 24 24"><path d="M5 12h14m-7-7v14"/></svg></button>
+        </div>
+      </div>
+    </section>
+    <aside class="inspect" aria-label="节点预览和替换">
+      <div id="node-detail" class="detail" aria-live="polite"></div>
+      <button id="compare-open" class="compare-open">画质与完整动作 · 并排看 ↗</button>
+      <section id="player" class="player" aria-label="动画预览">
+        <div class="screen">
+          <canvas id="face" width="480" height="480" role="img" aria-label="表情动画"></canvas>
+          <div id="screen-guides" hidden><span>顶部提示</span><span>字幕区</span></div>
+          <span class="screen-tag">480 × 480</span>
+        </div>
+        <div class="timeline">
+          <button id="play" title="播放或暂停" aria-label="暂停"><svg viewBox="0 0 24 24"><path d="M9 5v14m6-14v14"/></svg></button>
+          <button id="replay" title="从头播放" aria-label="从头播放"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 1 2 6m-2-6V5m0 7h7"/></svg></button>
+          <input type="range" id="frames" min="0" max="0" value="0" aria-label="动画帧">
+          <output id="frame-number"></output>
+        </div>
+        <div class="preview-controls"><label>镜像 <select id="mirror"><option value="device">设备状态</option><option value="off">关闭镜像</option><option value="on">开启镜像</option></select></label><label class="check"><input id="guides" type="checkbox"> 字幕留位</label></div>
+        <div id="complete-controls" hidden>
+          <label class="complete-mode">播放方式<select id="complete-mode"><option value="complete">完整一遍 · 进入 → 表演 → 收尾</option><option value="loop">持续表演 · 进入后循环主体</option><option value="entry">只看进入段</option></select></label>
+          <div class="clip-stages" aria-label="动画组成"><button data-clip-stage="entry">进入</button><span>→</span><button data-clip-stage="performance">完整表演</button><span>→</span><button data-clip-stage="exit">收尾</button></div>
+        </div>
+        <p id="expression-phase-label" class="micro playback-status" role="status"></p>
+      </section>
+      <div id="metadata"></div>
+      <section class="replace" id="replace" hidden>
+        <h3>指定新素材</h3>
+        <label for="candidate">素材包 <span>mosaico-eaf-480</span></label>
+        <select id="candidate" aria-label="选择新表情素材"></select>
+        <div id="comparison" class="comparison" hidden><img id="candidate-gif" alt=""><div id="candidate-meta"></div></div>
+        <label for="scope">替换范围</label>
+        <select id="scope" aria-label="替换范围"><option value="one">仅此语义</option><option value="shared">替换此版本的共用语义</option></select>
+        <p id="scope-info" class="micro"></p>
+        <label for="note">备注</label>
+        <input id="note" placeholder="例如：只在确实惊讶时使用" maxlength="180">
+        <button class="primary" id="save-plan" type="button">加到替换清单</button>
+        <p class="micro" id="save-status" role="status"></p>
+      </section>
+    </aside>
+  </main>
+  <dialog id="rules" aria-labelledby="rules-title">
+    <div class="dialog-head"><div><small>PRODUCTION / Mosaico</small><h2 id="rules-title">制作规范</h2></div><button data-close="rules" aria-label="关闭制作规范">×</button></div>
+    <div class="rule-body">
+      <div id="budgets" class="budgets"></div>
+      <dl class="specs">
+        <dt>01 · 构图</dt><dd>交稿用 480 × 480 的 GIF 或帧图，黑底，按「字幕留位」检查。整脸素材做方形；想复用双眼布局可只画左眼。已画好两只眼睛的图用整脸布局。</dd>
+        <dt>02 · 节奏</dt><dd>保留原稿帧率，分别注明进入、完整表演和收尾。高清图层候选为 480 × 480、25 fps；240 EAF 为 20 fps。早期三份小样为 10 fps，原版通常为 20 fps，独立聆听条为 15 fps。区间用 [起始, 结束)，结束帧不纳入循环。</dd>
+        <dt>03 · 格式</dt><dd>EAF 是固件的动画包。现用解码器支持 8 位索引色 RLE，最长边 360 px，最多 256 个容器条目（含元数据），每包最多 4 MiB。480 px 原稿与 MMAP 合集先离线转码。固件空间还须看分区预算。</dd>
+        <dt>04 · 复用</dt><dd>同一份动画可对应多个语义。高清候选将背景、眼白、瞳孔和装饰分层，轮廓完全匹配时共享精灵，也可镜像引用；左右位置与动作时间保持独立。不对称的眨眼和错拍保留各自图层。</dd>
+        <dt>05 · 编排</dt><dd id="priority-text"></dd>
+        <dt>06 · 播放</dt><dd id="timing-text"></dd>
+      </dl>
+      <details><summary>原版素材授权与来源</summary><p id="source-revision" class="micro"></p><pre id="license"></pre></details>
+    </div>
+  </dialog>
+  <dialog id="plan" aria-labelledby="plan-title">
+    <div class="dialog-head"><div><small>ART DIRECTION / DRAFT</small><h2 id="plan-title">替换清单</h2></div><button data-close="plan" aria-label="关闭替换清单">×</button></div>
+    <div id="plan-list"></div>
+    <div class="dialog-actions"><span id="storage-state" class="micro"></span><button class="primary" id="export">导出 JSON</button></div>
+  </dialog>
+  <dialog id="compare" class="compare-dialog" aria-labelledby="compare-title">
+    <div class="dialog-head"><div><small>FULL CLIP / SIDE BY SIDE</small><h2 id="compare-title">原版与新表情</h2></div><button id="compare-close" aria-label="关闭表情对比">×</button></div>
+    <div class="compare-body">
+      <div class="compare-top"><label>表情 <select id="compare-semantic" aria-label="对比表情"></select></label><label>左侧<select id="compare-reference"><option value="original">原版</option><option value="complete">新表情 · 240</option><option value="optimized">高清优化 · 480</option><option value="contour">微动作 · 480</option></select></label><label>右侧<select id="compare-variant"><option value="complete">新表情 · 240</option><option value="optimized">高清优化 · 480</option><option value="contour">微动作 · 480</option><option value="square">方圆怪趣 · 480</option></select></label><label>播放<select id="compare-mode"><option value="complete">完整一遍</option><option value="loop">持续表演</option><option value="entry">只看进入段</option></select></label></div>
+      <div class="compare-faces">
+        <article><div class="compare-card-head"><strong id="compare-left-title">原版</strong><span>各自原速</span></div><canvas id="compare-original" width="480" height="480" aria-label="左侧完整动画"></canvas><p id="compare-original-status" class="micro"></p><p id="compare-original-meta" class="micro"></p></article>
+        <article><div class="compare-card-head"><strong id="compare-right-title">新表情</strong><span id="compare-right-caption">交付 EAF · 逐帧播放</span></div><canvas id="compare-complete" width="480" height="480" aria-label="右侧完整动画"></canvas><p id="compare-complete-status" class="micro"></p><div id="compare-stages" class="compare-stages"></div><p id="compare-complete-meta" class="micro"></p></article>
+      </div>
+      <div class="compare-transport"><button id="compare-replay">从头对比</button><button id="compare-play">暂停</button><input id="compare-time" type="range" min="0" max="5000" step="10" value="0" aria-label="共同播放时间"><output id="compare-clock">0.00 s</output></div>
+      <label id="compare-align-label" class="check micro"><input id="compare-align" type="checkbox" checked> 对齐两版的表演进度</label>
+      <p class="micro">两边按各自原速播放。新表情的彩色时间条显示进入、表演和收尾；拖动可逐段核对。</p>
+      <p class="compare-explanation">原版：切换后从首帧播放，循环片段重复整段，单次片段停在末帧。新表情：绿色进入后接完整表演；「持续表演」只循环主体，「完整一遍」继续播放收尾。</p>
+      <p class="compare-explanation" id="quality-explanation">高清候选：480 轮廓与 16 级边缘覆盖，背景和过渡按图层绘制。位置、瞳孔与眼形保留独立时序；新格式供画质与动作评审，固件接入单独验证。</p>
+    </div>
+  </dialog>
+</body>
+</html>

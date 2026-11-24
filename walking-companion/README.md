@@ -1,21 +1,50 @@
-# UNION / Walking Companion
+## 当前视觉：灰紫金属海报
 
-当前交付：灰紫金属海报风格，一屏体验，无需构建。右侧“立即体验”展开场景/视频，左侧为八种表情与模拟设备控制，场景按钮在视频下方。返回首页或 Escape 收起。
+保留固定一屏与右侧抽屉、八种表情、场景/视频和模拟设备逻辑。`css/metal.css` 统一灰紫渐变、白色巨字、金属轨道线、产品轮廓内的暖铜/粉红反射。首页不再加载切片背景显示，场景概念影像采用原始照片展示。产品仍使用原透明素材，未改变气球结构。
 
-在线预览：https://Tree080730.github.io/eye-expression-preview/walking-companion/
+## 当前交互：固定一屏
 
-## 本地运行
+首页右侧“立即体验”展开右侧视频/场景面板，同时左侧显示八种表情交互与模拟设备控制。场景按钮位于视频下方，返回首页或 Escape 可收起。桌面左右分栏，手机同屏上下分区，无页面滚动。
 
-进入本目录，运行 `python3 preview.py`，打开 http://127.0.0.1:8768/ 。安装 Python 3 后即可使用，无需 npm。
+新增 `css/experience.css` 和 `js/experience.js`，复用场景和设备服务。人物照片与视频占位仍为概念预览，未补入实拍视频。表情为网页 Canvas 交互预览，未修改原表情素材库。
 
-## 团队接入
+# UNION / A Walking Companion
 
-- 页面：index.html；样式：css/style.css、experience.css、metal.css。
-- 一屏与表情交互：js/experience.js；媒体与 UI 协调：js/main.js。
-- 五种场景和视频路径：js/scenes.js。将 walking.mp4、chilling.mp4、working.mp4、exploring.mp4、playing.mp4 放到 assets/videos/。
-- 视频支持播放/暂停/静音/加载提示与错误回退；当前未附实拍视频，默认概念预览。
-- js/device.js 分离 DeviceService、DeviceAdapter 与 MockDeviceAdapter。当前连接与行为均为模拟，不会控制真实设备。
-- WebSocket/Bluetooth 仅预留接口骨架，接入前需要具体协议与鉴权，不能当作已完成硬件适配。
-- 产品使用原透明图片；城市源图为生成的概念摄影，其余环境图来源链接见 assets/images/provenance.json。
+全新独立的本地品牌体验网站。HTML + CSS + ES Modules，无构建、无第三方运行依赖。未发布到 GitHub 或任何线上平台。
 
-原表情预览仍保留在仓库 expression-preview/ 和 GitHub Pages 根入口。
+## 本地打开
+
+在本目录运行 `python3 preview.py`，浏览器打开 http://127.0.0.1:8768/ 。需要静态服务器；请不要直接双击 HTML（浏览器会限制本地 ES Modules）。
+
+## 素材与视觉
+
+- 用户参考一决定视觉语言，`assets/images/visual-reference.png` 作为参考备份与首页加载失败的后备图。
+- `companion.png` 是用户提供的产品透明素材，完整保留结构。当前通过小幅透视、漂浮和光影融入画面；没有虚构其他产品视角或三维模型。
+- `walking.png` 为内置图像生成工具生成的城市摄影风格源图，提示词见 `assets/images/provenance.json`。人物为行走姿态的静态概念影像，不是实拍步行动画。当前动态来自切片位移、漂浮、轻微鼠标响应和主动靠近。未来真实走路动作应使用视频接口替换。
+- 其余四张照片来自 Unsplash CDN，来源链接保存在 provenance.json；当前只是生活环境概念图，不声称是真实使用拍摄。
+- 横向条纹全部采样自同一张源照片。`js/effects.js` 中 `ImageSlices` 统一完成纵向分区、行像素横向拉伸、局部矩形位移与人物轮廓保留（中央建筑背景同样参与拉伸）；每个场景复用同一逻辑。可调整分区参数与 `strength`。
+- Canvas 渲染上限 1600px、像素比不超过 1.5，约 24fps；纹理在图片载入/尺寸变化时缓存。离屏暂停绘制，页面隐藏暂停，遵循 prefers-reduced-motion，并有手动暂停。
+
+## 场景与视频
+
+`js/scenes.js` 独立管理五个场景，以及 `poster`、`video`、`mode`、文案和模拟状态。将视频放入 `assets/videos/`，文件名为 walking.mp4、chilling.mp4、working.mp4、exploring.mp4、playing.mp4。也可修改 video 路径。视频不自动请求；点击“播放视频”才加载，支持播放、暂停、静音、加载提示、失败后返回当前概念预览。当前未附带视频，不伪装为已经存在的视频。
+
+## 设备层
+
+`js/device.js` 中 `DeviceAdapter` 定义 connect / disconnect / send 以及 status 事件。`DeviceService` 分离 UI 与通信，保存当前场景并在连接后同步。`MockDeviceAdapter` 通过模拟异步回复展示连接/断开、设备名称/ID、场景和行为。
+
+场景映射为 walking_mode、chilling_mode、working_mode、exploring_mode、playing_mode。`WebSocketDeviceAdapter` 和 `BluetoothDeviceAdapter` 为协议接入骨架，明确抛出未配置错误。它们不是已实现的硬件适配器，需要设备地址、服务 UUID、鉴权、指令编码、断线恢复、状态解析等真实协议才能接入。
+
+无设备密钥、账号或真实设备连接；无需后端。控制台 `window.companionApp` 可读取当前场景与模拟服务。
+
+
+## 表情工作台
+
+点击「立即体验」后，左侧为 AirBoat 表情工作台，右侧仍为五种生活场景。工作台支持六版素材、搜索、节点拖动与缩放、动画播放与逐帧检查、镜像、完整动作对比，以及替换清单导出。手机上通过「节点关系 / 动画预览」切换；「展开」在新标签中打开完整工作台。
+
+工作台代码与素材位于 `workbench/`，发布网站时需连同该目录一起上传。仅进入体验时加载表情资源，首页不预先下载。界面已适配灰紫色主题，原表情动画色彩保留。
+
+
+最新展示布局：左侧上方仅显示横向表情（等比例缩放、上下裁切、两侧延展原背景色），下方为节点工作台。原检查栏说明、时间线、参数与替换表单从展示界面隐藏，六版素材、搜索、节点拖动缩放、制作规范和替换清单入口保留。右侧五种场景与视频区域不变。
+
+表情安全显示：完整原始动画帧始终以等比例 contain 方式放入横向区域，四周保留 3% 安全边距。横向额外空间使用当前动画背景色延展；不裁切眼睛，不改变瞳孔和眼形比例。

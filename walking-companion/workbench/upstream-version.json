@@ -1,0 +1,96 @@
+{
+  "repository": "404-NOT-FOUND-ERROR/AirBoat_Face_Expression",
+  "branch": "main",
+  "commit": "9a21009852a16bdc342827b91a7d7102f4956659",
+  "source_directory": "docs/product",
+  "adaptations": [
+    "UNION theme and compact views",
+    "Local candidate GIF paths",
+    "Hide unavailable source build report link",
+    "Compact graph focus position",
+    "Cache version for scripts",
+    "Panoramic expression above full-width workbench; hidden inspector controls",
+    "Uniform face scale, vertical crop, source-color side extension",
+    "Continuous presentation playback and compact graph initialization"
+  ],
+  "files": [
+    {
+      "file": "expression-workbench.html",
+      "sha256": "48f91121dc3cd8823197cf98f0d61d3770712b98505345d211be8b6af5889729",
+      "bytes": 12565,
+      "local_sha256": "7eb99b0327ae4559760cefe2ee76f7cca5a0f0d860b0b2c652687856a040b478"
+    },
+    {
+      "file": "expression-workbench.css",
+      "sha256": "78064b66f4a5b1c019323d09bb91a2f7dc4ff761f98d99ca9ca4a9e30cce4438",
+      "bytes": 14145,
+      "local_sha256": "78064b66f4a5b1c019323d09bb91a2f7dc4ff761f98d99ca9ca4a9e30cce4438"
+    },
+    {
+      "file": "expression-workbench.js",
+      "sha256": "c1344d03cb8058b8e4cf5613616e6ce8ec242900c3ebc293696f3089b51ffd25",
+      "bytes": 31576,
+      "local_sha256": "e2fe0068a9aecb3dc2b06f102aa74d7c8bfa891562dd0bf9d8280ada7c5690c8"
+    },
+    {
+      "file": "expression-workbench-player.js",
+      "sha256": "b0caccd35fb6a0c690a0cfa699cd5865bc805e836053329c7464596387b0934b",
+      "bytes": 6564,
+      "local_sha256": "b0caccd35fb6a0c690a0cfa699cd5865bc805e836053329c7464596387b0934b"
+    },
+    {
+      "file": "expression-workbench-data.js",
+      "sha256": "c54c6a076aaccfad9006b3eb60550cbe3d75cd9494bda5ee55414aa184a50469",
+      "bytes": 7256813,
+      "local_sha256": "31b2f46db5f963ff696fc894d08e262c7f88f84a0097dd709e480c31825f8114"
+    },
+    {
+      "file": "expression-complete-data.js",
+      "sha256": "13b41b8029cea214b6096def1dca770d88c4be178337f32ab03959fabeaa2481",
+      "bytes": 5091401,
+      "local_sha256": "13b41b8029cea214b6096def1dca770d88c4be178337f32ab03959fabeaa2481"
+    },
+    {
+      "file": "expression-optimized-data.js",
+      "sha256": "29fdc915c256f9d3e7488e08c15fb3ee3a6bc5d7e098d4af5b807cca5294c089",
+      "bytes": 2661206,
+      "local_sha256": "29fdc915c256f9d3e7488e08c15fb3ee3a6bc5d7e098d4af5b807cca5294c089"
+    },
+    {
+      "file": "expression-optimized-player.js",
+      "sha256": "2cc0256ea1de523343f7582eb3a3939db91492a434361600acc9125aa14775b4",
+      "bytes": 9441,
+      "local_sha256": "2cc0256ea1de523343f7582eb3a3939db91492a434361600acc9125aa14775b4"
+    },
+    {
+      "file": "expression-complete-preview.js",
+      "sha256": "2bc1f8ad522476e41d5f373c70b9b0c95df09f518a5f3bdc53425d0929640da4",
+      "bytes": 9184,
+      "local_sha256": "2bc1f8ad522476e41d5f373c70b9b0c95df09f518a5f3bdc53425d0929640da4"
+    },
+    {
+      "file": "expression-contour-data.js",
+      "sha256": "80a414e0ad74272b1fe4b1ee890c52a6c761ab02187b95d64bb69a2cc5e8afc1",
+      "bytes": 2337017,
+      "local_sha256": "80a414e0ad74272b1fe4b1ee890c52a6c761ab02187b95d64bb69a2cc5e8afc1"
+    },
+    {
+      "file": "expression-contour-player.js",
+      "sha256": "ff19ad6460512cac8add46b6b5b4e333db6ed910f39f42212f8cb01ef456ea94",
+      "bytes": 1116,
+      "local_sha256": "ff19ad6460512cac8add46b6b5b4e333db6ed910f39f42212f8cb01ef456ea94"
+    },
+    {
+      "file": "expression-square-data.js",
+      "sha256": "57f4b699ed70aa06d2eb11646dd49eeff623a8a9e58990218202ed48ec88e78f",
+      "bytes": 6864408,
+      "local_sha256": "57f4b699ed70aa06d2eb11646dd49eeff623a8a9e58990218202ed48ec88e78f"
+    },
+    {
+      "file": "expression-square-player.js",
+      "sha256": "1270022080ef349f03e502a7d32df62a3411055e3049029bfa6a675e7fd113ca",
+      "bytes": 1055,
+      "local_sha256": "1270022080ef349f03e502a7d32df62a3411055e3049029bfa6a675e7fd113ca"
+    }
+  ]
+}
